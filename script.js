@@ -1,6 +1,7 @@
 const SUPABASE_URL = 'https://nqnykxwfpuelphtxxwtn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_BG5FRtP_2WJYsMyKbA9u7A_L4aLjq3l';
 const ADMIN_PASSWORD = 'melrose2024';
+const WHATSAPP_PHONE = '5493624645328';
 
 const formatter = new Intl.NumberFormat('es-AR', {
   style: 'currency',
@@ -121,6 +122,49 @@ function closeCart() {
   overlay.classList.remove('open');
 }
 
+function openCheckoutModal() {
+  document.getElementById('checkoutOverlay')?.classList.add('open');
+  document.getElementById('checkoutModal')?.classList.add('open');
+}
+
+function closeCheckoutModal() {
+  document.getElementById('checkoutOverlay')?.classList.remove('open');
+  document.getElementById('checkoutModal')?.classList.remove('open');
+}
+
+function buildWhatsappMessage(nombre, direccion) {
+  const lineItems = cart.map((item) => {
+    const talle = item.talle || 'UNICO';
+    return `- ${item.nombre} x${item.qty} | Talle: ${talle} | ${formatter.format(Number(item.precio || 0))}`;
+  }).join('\n');
+  const total = cart.reduce((acc, item) => acc + Number(item.precio || 0) * item.qty, 0);
+  return [
+    '*PEDIDO NUEVO - MELROSE* 🛍️',
+    '',
+    `Cliente: ${nombre}`,
+    `Entrega: ${direccion}`,
+    '',
+    '*Detalle:*',
+    lineItems,
+    '',
+    `*TOTAL: ${formatter.format(total)}*`
+  ].join('\n');
+}
+
+function finalizeOrder(nombre, direccion) {
+  const message = buildWhatsappMessage(nombre, direccion);
+  const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+
+  cart = [];
+  localStorage.removeItem('melrose_cart');
+  updateCartUI();
+  closeCheckoutModal();
+  closeCart();
+  alert('Gracias por tu compra. Te redirigimos al inicio.');
+  window.location.href = 'index.html?checkout=ok';
+}
+
 function updateCartUI() {
   const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
   const badge = document.getElementById('cartBadge');
@@ -146,6 +190,7 @@ function updateCartUI() {
         <img src="${safeText(item.imagen_url || placeholderImage)}" alt="${safeText(item.nombre)}">
         <div>
           <p>${safeText(item.nombre)}</p>
+          <p class="muted">Talle: ${safeText(item.talle || 'UNICO')}</p>
           <p class="muted">${formatter.format(Number(item.precio || 0))}</p>
           <div class="cart-actions">
             <div class="qty-controls">
@@ -174,6 +219,7 @@ window.addToCart = function addToCart(id) {
       nombre: found.nombre,
       precio: Number(found.precio || 0),
       imagen_url: found.imagen_url || placeholderImage,
+      talle: Array.isArray(found.talles) && found.talles.length ? found.talles[0] : 'UNICO',
       qty: 1
     });
   }
@@ -222,6 +268,39 @@ async function initStorePage() {
   document.getElementById('cartOpenBtn')?.addEventListener('click', openCart);
   document.getElementById('cartCloseBtn')?.addEventListener('click', closeCart);
   document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
+  document.getElementById('checkoutOpenBtn')?.addEventListener('click', () => {
+    if (!cart.length) {
+      alert('Tu carrito esta vacio.');
+      return;
+    }
+    openCheckoutModal();
+  });
+  document.getElementById('checkoutCloseBtn')?.addEventListener('click', closeCheckoutModal);
+  document.getElementById('checkoutOverlay')?.addEventListener('click', closeCheckoutModal);
+  document.getElementById('checkoutForm')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!cart.length) {
+      alert('No hay productos en el carrito.');
+      closeCheckoutModal();
+      return;
+    }
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const nombre = String(formData.get('nombre') || '').trim();
+    const direccion = String(formData.get('direccion') || '').trim();
+    if (!nombre || !direccion) {
+      alert('Completa nombre y direccion/localidad.');
+      return;
+    }
+    finalizeOrder(nombre, direccion);
+    form.reset();
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('checkout') === 'ok') {
+    window.history.replaceState({}, '', 'index.html');
+    setTimeout(() => alert('Pedido enviado por WhatsApp. Gracias por elegir Melrose.'), 150);
+  }
 }
 
 function getAdminSession() {

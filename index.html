@@ -72,9 +72,24 @@
         <span>TOTAL</span>
         <strong id="cartTotalText">$ 0,00</strong>
       </div>
-      <button class="btn-primary checkout-btn">FINALIZAR COMPRA</button>
+      <button class="btn-primary checkout-btn" id="checkoutOpenBtn">FINALIZAR COMPRA</button>
     </div>
   </aside>
+
+  <div class="checkout-overlay" id="checkoutOverlay"></div>
+  <section class="checkout-modal" id="checkoutModal" aria-label="Formulario de checkout">
+    <div class="checkout-head">
+      <h3>FINALIZAR PEDIDO</h3>
+      <button class="icon-btn" id="checkoutCloseBtn" aria-label="Cerrar checkout">X</button>
+    </div>
+    <form id="checkoutForm" class="checkout-form">
+      <label for="checkoutName">Nombre</label>
+      <input id="checkoutName" name="nombre" type="text" placeholder="Tu nombre completo" required>
+      <label for="checkoutAddress">Direccion / Localidad</label>
+      <input id="checkoutAddress" name="direccion" type="text" placeholder="Calle, numero y localidad" required>
+      <button class="btn-primary" type="submit">ENVIAR POR WHATSAPP</button>
+    </form>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
