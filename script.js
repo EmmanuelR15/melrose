@@ -25,6 +25,8 @@ const fallbackProducts = [
 ];
 
 let supabaseClient = null;
+let lenis = null;
+
 if (typeof gsap !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }
@@ -173,30 +175,54 @@ function initProductReveal() {
   const cards = gsap.utils.toArray('.product-card');
   if (!cards.length) return;
 
-  // Usamos from() para que el estado final sea el CSS (visible)
-  gsap.from(cards, {
-    delay: 0.1,
-    opacity: 0,
-    y: 40,
-    duration: 0.8,
-    stagger: 0.1,
-    ease: "power2.out",
-    scrollTrigger: {
-      trigger: ".products-grid",
-      start: "top 85%",
-      toggleActions: "play none none none"
+  cards.forEach(card => {
+    const mask = card.querySelector('.product-image-mask');
+    const img = card.querySelector('img');
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: card,
+        start: "top 90%",
+        toggleActions: "play none none none"
+      }
+    });
+
+    if (mask) {
+      tl.to(mask, {
+        scaleY: 0,
+        duration: 1.2,
+        ease: "power4.inOut"
+      });
     }
+
+    tl.from(img, {
+      scale: 1.2,
+      duration: 1.4,
+      ease: "power2.out"
+    }, 0);
   });
 
   // Micro-interacciones Hover Orgánico
   cards.forEach(card => {
     card.addEventListener('mouseenter', () => {
-      gsap.to(card, { scale: 1.05, duration: 0.4, ease: "power2.out" });
+      gsap.to(card, { scale: 1.02, duration: 0.6, ease: "power4.out" });
+      document.getElementById('customCursor')?.classList.add('grow');
     });
     card.addEventListener('mouseleave', () => {
-      gsap.to(card, { scale: 1, duration: 0.4, ease: "power2.inOut" });
+      gsap.to(card, { scale: 1, duration: 0.6, ease: "power4.out" });
+      document.getElementById('customCursor')?.classList.remove('grow');
     });
   });
+}
+
+function splitTextIntoChars(selector) {
+  const element = document.querySelector(selector);
+  if (!element) return;
+  const text = element.textContent;
+  element.innerHTML = text.split('').map(char => {
+    return `<span class="char">${char === ' ' ? '&nbsp;' : char}</span>`;
+  }).join('');
+  element.setAttribute('aria-label', text); // SEO/Accessibility
 }
 
 function initGSAPAnimations() {
@@ -204,12 +230,50 @@ function initGSAPAnimations() {
 
   const mm = gsap.matchMedia();
 
-  // Desktop Only: Parallax y Navbar Logo
+  // 1. Lenis Smooth Scroll Setup
+  try {
+    if (typeof Lenis !== 'undefined') {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        smoothTouch: false,
+        touchMultiplier: 2,
+        infinite: false,
+      });
+
+      lenis.on('scroll', ScrollTrigger.update);
+
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+
+      gsap.ticker.lagSmoothing(0);
+    }
+  } catch (e) {
+    console.warn('[LENIS] Error al inicializar:', e);
+  }
+
+  // 2. Desktop Gallery Effects
   mm.add("(min-width: 1025px)", () => {
-    // Parallax Hero Background
-    gsap.to('.hero', {
-      backgroundPositionY: '30%',
-      ease: "none",
+    // Custom Cursor
+    const cursor = document.getElementById('customCursor');
+    window.addEventListener('mousemove', (e) => {
+      gsap.to(cursor, {
+        x: e.clientX,
+        y: e.clientY,
+        duration: 0.15,
+        ease: "none"
+      });
+    });
+
+    // Reactive Hero Title (Skew/Spacing on Scroll)
+    gsap.to('.hero h1', {
+      letterSpacing: "0.15em",
+      skewX: -5,
       scrollTrigger: {
         trigger: ".hero",
         start: "top top",
@@ -218,28 +282,40 @@ function initGSAPAnimations() {
       }
     });
 
-    // Navbar Logo Scroll Transition
-    gsap.to('.logo', {
-      scale: 0.85,
-      y: -2,
-      duration: 0.3,
+    // Parallax Hero
+    gsap.to('.hero', {
+      backgroundPositionY: '20%',
+      ease: "none",
       scrollTrigger: {
-        trigger: "body",
-        start: "50px top",
-        toggleActions: "play none none reverse"
+        trigger: ".hero",
+        start: "top top",
+        end: "bottom top",
+        scrub: true
       }
     });
   });
 
-  // Hero Entry Sequence - Animamos DESDE opacidad 0
-  const heroTL = gsap.timeline({ delay: 0.2 });
-  heroTL.from('.hero-kicker, .hero h1, .hero-description, .hero .btn-primary', {
+  // 3. Hero Entry Sequence (Split Text)
+  splitTextIntoChars('.hero h1');
+  const heroTL = gsap.timeline({ delay: 0.5 });
+  
+  heroTL.from('.hero-kicker', { opacity: 0, y: 20, duration: 0.8 });
+  heroTL.from('.char', {
     opacity: 0,
-    y: 50,
+    y: 100,
+    rotateX: -90,
+    stagger: 0.03,
     duration: 1,
+    ease: "power4.out"
+  }, "-=0.4");
+  
+  heroTL.from('.hero-description, .hero .btn-primary', {
+    opacity: 0,
+    y: 30,
     stagger: 0.2,
+    duration: 1,
     ease: "power3.out"
-  });
+  }, "-=0.6");
 }
 
 function getValidTalles(product) {
@@ -267,6 +343,7 @@ function renderProducts(categoria = 'TODO') {
     return `
     <article class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" data-product-id="${safeText(item.id)}">
       <div class="product-image-wrap">
+        <div class="product-image-mask"></div>
         <img src="${safeText(item.imagen_url || placeholderImage)}" alt="${safeText(item.nombre)}" loading="lazy" onerror="this.onerror=null;this.src='${brokenImagePlaceholder}'">
       </div>
       <div class="product-content">
@@ -543,11 +620,14 @@ async function initStorePage() {
   }
 
   // Smooth Scroll para links internos
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  const navLinks = document.querySelectorAll('a[href^="#"]');
+  navLinks.forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-      e.preventDefault();
+      // Blindamos la navegación: preventDefault() SIEMPRE al inicio
       const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
+      if (!targetId || targetId === '#') return;
+
+      e.preventDefault();
       smoothScrollTo(targetId);
     });
   });
@@ -964,13 +1044,31 @@ function smoothScrollTo(selector) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Capa de infraestructura básica (Siempre visible)
   ensureToastWrap();
+
+  // 2. Carga de datos e inicialización de UI (Prioridad 1)
   if (document.getElementById('productsGrid')) {
     initSecretAdminAccess();
-    await initStorePage();
-    initGSAPAnimations();
-    initProductReveal();
+    
+    // Intentamos cargar la tienda. Si la API falla, el fallback entrará en juego.
+    try {
+      await initStorePage();
+    } catch (e) {
+      console.error('[CRÍTICO] Error al inicializar tienda:', e);
+    }
+
+    // 3. Capa de Refinamiento (GSAP) - No debe bloquear la carga de datos
+    try {
+      if (typeof gsap !== 'undefined') {
+        initGSAPAnimations();
+        initProductReveal();
+      }
+    } catch (e) {
+      console.warn('[GSAP] Error al ejecutar animaciones:', e);
+    }
   }
+
   if (document.getElementById('adminPanel')) {
     await initAdminPage();
   }

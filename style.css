@@ -183,26 +183,26 @@ h3 {
   color: var(--blanco);
   letter-spacing: 0.3em;
   font-size: 0.85rem;
-  opacity: 1; /* Fallback */
+  opacity: 1; 
 }
 
 .hero h1 {
   font-size: clamp(3.5rem, 15vw, 9rem);
   line-height: 0.9;
   margin: 1rem 0;
-  opacity: 1; /* Fallback */
+  opacity: 1; 
 }
 
 .hero-description {
   max-width: 32rem;
   color: rgba(255,255,255,0.8);
   font-size: 0.95rem;
-  opacity: 1; /* Fallback */
+  opacity: 1; 
 }
 
 .hero .btn-primary {
   margin-top: 2rem;
-  opacity: 1; /* Fallback */
+  opacity: 1; 
 }
 
 
@@ -697,16 +697,21 @@ h3 {
 
 /* Responsividad Movil */
 @media (max-width: 768px) {
+  body {
+    padding: 0 5%;
+    overflow-x: hidden;
+  }
+
   .hero {
     height: 85vh;
   }
 
   .hero h1 {
-    font-size: 2rem !important; /* Force reduction */
+    font-size: clamp(1.8rem, 8vw, 2.2rem) !important; 
   }
 
   .products-grid {
-    grid-template-columns: 1fr 1fr; /* Force 2 columns */
+    grid-template-columns: 1fr 1fr;
     gap: 0.8rem;
   }
 
@@ -1033,6 +1038,65 @@ h3 {
     width: 92%;
   }
 
+/* Gallery Edition: Espacios Editoriales */
+.products-section {
+  padding: 10rem 0;
+}
+
+.hero {
+  padding-bottom: 5rem;
+}
+
+/* Custom Cursor (Visual Only) */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--blanco);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  transform: translate(-50%, -50%);
+  display: none; /* Activable via JS */
+}
+
+@media (min-width: 1025px) {
+  .custom-cursor {
+    display: block;
+  }
+}
+
+.custom-cursor.grow {
+  transform: translate(-50%, -50%) scale(5);
+}
+
+/* Typography Refinement */
+.char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Image Masking */
+.product-image-wrap {
+  position: relative;
+  overflow: hidden;
+  clip-path: inset(0 0 0 0); /* Fallback */
+}
+
+.product-image-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--negro);
+  z-index: 2;
+  transform-origin: top;
+}
   .nav-links {
     display: flex;
   }
