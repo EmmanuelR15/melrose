@@ -17,7 +17,7 @@ const fallbackProducts = [
   { id: 'f6', nombre: 'BANDOLERA URBAN CORE', descripcion: 'Nylon resistente', precio: 31990, categoria: 'ACCESORIOS', talles: ['UNICO'], imagen_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=80', destacado: false, stock: 9 }
 ];
 
-let supabase = null;
+let supabaseClient = null;
 if (
   window.supabase &&
   SUPABASE_URL &&
@@ -25,7 +25,7 @@ if (
   SUPABASE_URL !== 'TU_SUPABASE_URL' &&
   SUPABASE_KEY !== 'TU_SUPABASE_ANON_KEY'
 ) {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
 let allProducts = [];
@@ -54,10 +54,10 @@ function safeText(value) {
 }
 
 async function getProductsFromSource() {
-  if (!supabase) {
+  if (!supabaseClient) {
     return fallbackProducts.slice();
   }
-  const { data, error } = await supabase.from('productos').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabaseClient.from('productos').select('*').order('created_at', { ascending: false });
   if (error) {
     throw error;
   }
@@ -237,12 +237,42 @@ function setAdminSession(isLogged) {
 }
 
 async function listAdminProducts() {
-  if (!supabase) {
+  if (!supabaseClient) {
     return fallbackProducts.slice();
   }
-  const { data, error } = await supabase.from('productos').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabaseClient.from('productos').select('*').order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];
+}
+
+async function subirImagen(archivo) {
+  if (!supabaseClient) {
+    throw new Error('Supabase no esta configurado.');
+  }
+  if (!archivo) {
+    throw new Error('No se selecciono ningun archivo.');
+  }
+  console.log('[ADMIN][UPLOAD] Iniciando subida de imagen...', {
+    name: archivo.name,
+    size: archivo.size,
+    type: archivo.type
+  });
+  const ext = (archivo.name.split('.').pop() || 'jpg').toLowerCase();
+  const safeExt = ext.replace(/[^a-z0-9]/g, '') || 'jpg';
+  const filePath = `${Date.now()}-${crypto.randomUUID()}.${safeExt}`;
+  const { error: uploadError } = await supabaseClient.storage
+    .from('productos')
+    .upload(filePath, archivo, { upsert: false, cacheControl: '3600' });
+  if (uploadError) {
+    console.error('[ADMIN][UPLOAD] Error al subir imagen:', uploadError);
+    throw uploadError;
+  }
+  const { data } = supabaseClient.storage.from('productos').getPublicUrl(filePath);
+  if (!data?.publicUrl) {
+    throw new Error('No se pudo obtener la URL publica de la imagen.');
+  }
+  console.log('[ADMIN][UPLOAD] Imagen subida correctamente:', data.publicUrl);
+  return data.publicUrl;
 }
 
 async function refreshAdminTable() {
@@ -283,7 +313,7 @@ async function refreshAdminTable() {
 }
 
 window.saveRow = async function saveRow(id) {
-  if (!supabase) {
+  if (!supabaseClient) {
     alert('Configura SUPABASE_URL y SUPABASE_KEY para editar desde admin.');
     return;
   }
@@ -291,7 +321,7 @@ window.saveRow = async function saveRow(id) {
   if (!row) return;
   const precio = Number(row.querySelector('[data-field="precio"]')?.value || 0);
   const stock = Number(row.querySelector('[data-field="stock"]')?.value || 0);
-  const { error } = await supabase.from('productos').update({ precio, stock }).eq('id', id);
+  const { error } = await supabaseClient.from('productos').update({ precio, stock }).eq('id', id);
   if (error) {
     alert(`No se pudo guardar: ${error.message}`);
     return;
@@ -300,13 +330,13 @@ window.saveRow = async function saveRow(id) {
 };
 
 window.deleteRow = async function deleteRow(id) {
-  if (!supabase) {
+  if (!supabaseClient) {
     alert('Configura SUPABASE_URL y SUPABASE_KEY para eliminar desde admin.');
     return;
   }
   const ok = confirm('Eliminar este producto?');
   if (!ok) return;
-  const { error } = await supabase.from('productos').delete().eq('id', id);
+  const { error } = await supabaseClient.from('productos').delete().eq('id', id);
   if (error) {
     alert(`No se pudo eliminar: ${error.message}`);
     return;
@@ -316,35 +346,85 @@ window.deleteRow = async function deleteRow(id) {
 
 async function handleCreateProduct(event) {
   event.preventDefault();
-  if (!supabase) {
+  if (!supabaseClient) {
     alert('Configura SUPABASE_URL y SUPABASE_KEY para crear productos en Supabase.');
     return;
   }
   const form = event.currentTarget;
   const data = new FormData(form);
+  console.log('[ADMIN][CREATE] Iniciando alta de producto...');
+  const imageFile = data.get('imagen_archivo');
+  if (!(imageFile instanceof File) || !imageFile.size) {
+    console.warn('[ADMIN][CREATE] Falta imagen en el formulario.');
+    alert('Selecciona una imagen antes de guardar.');
+    return;
+  }
+
+  const rawPrecio = Number(data.get('precio'));
+  if (!Number.isFinite(rawPrecio) || rawPrecio <= 0) {
+    console.warn('[ADMIN][CREATE] Precio invalido:', data.get('precio'));
+    alert('El precio debe ser un numero mayor a 0.');
+    return;
+  }
+
+  const rawStock = Number(data.get('stock'));
+  if (!Number.isFinite(rawStock) || rawStock < 0) {
+    console.warn('[ADMIN][CREATE] Stock invalido:', data.get('stock'));
+    alert('El stock debe ser un numero mayor o igual a 0.');
+    return;
+  }
+
+  const tallesArray = String(data.get('talles') || '')
+    .split(',')
+    .map((x) => x.trim().toUpperCase())
+    .filter(Boolean);
+
+  console.log('[ADMIN][CREATE] Datos parseados previos al upload:', {
+    nombre: String(data.get('nombre') || '').trim(),
+    categoria: String(data.get('categoria') || '').trim().toUpperCase(),
+    precio: rawPrecio,
+    stock: rawStock,
+    talles: tallesArray
+  });
+
+  let uploadedImageUrl = '';
+  try {
+    uploadedImageUrl = await subirImagen(imageFile);
+  } catch (error) {
+    console.error('[ADMIN][CREATE] Fallo etapa upload:', error);
+    alert(`No se pudo subir la imagen: ${error.message}`);
+    return;
+  }
   const payload = {
     nombre: String(data.get('nombre') || '').trim(),
     descripcion: String(data.get('descripcion') || '').trim(),
-    precio: Number(data.get('precio') || 0),
+    precio: rawPrecio,
     categoria: String(data.get('categoria') || '').trim().toUpperCase(),
-    stock: Number(data.get('stock') || 0),
-    imagen_url: String(data.get('imagen_url') || '').trim(),
-    talles: String(data.get('talles') || '')
-      .split(',')
-      .map((x) => x.trim())
-      .filter(Boolean),
+    stock: rawStock,
+    imagen_url: uploadedImageUrl,
+    talles: tallesArray,
     destacado: Boolean(data.get('destacado'))
   };
   if (!payload.nombre || !payload.precio || !payload.categoria) {
+    console.warn('[ADMIN][CREATE] Faltan campos requeridos:', payload);
     alert('Nombre, precio y categoria son obligatorios.');
     return;
   }
-  const { error } = await supabase.from('productos').insert(payload);
+  console.log('[ADMIN][CREATE] Payload final a insertar:', payload);
+  const { error } = await supabaseClient.from('productos').insert(payload);
   if (error) {
+    console.error('[ADMIN][CREATE] Fallo etapa insert DB:', error);
     alert(`No se pudo agregar: ${error.message}`);
     return;
   }
+  console.log('[ADMIN][CREATE] Producto creado con exito.');
+  alert('Producto creado correctamente.');
   form.reset();
+  const imagePreview = document.getElementById('imagePreview');
+  if (imagePreview) {
+    imagePreview.src = '';
+    imagePreview.classList.remove('visible');
+  }
   await refreshAdminTable();
 }
 
@@ -364,6 +444,8 @@ async function initAdminPage() {
   const passwordInput = document.getElementById('adminPassword');
   const loginError = document.getElementById('loginError');
   const productForm = document.getElementById('productForm');
+  const fileInput = document.getElementById('imagenArchivo');
+  const imagePreview = document.getElementById('imagePreview');
 
   loginForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -380,6 +462,25 @@ async function initAdminPage() {
   document.getElementById('btnLogout')?.addEventListener('click', async () => {
     setAdminSession(false);
     await applyAdminState();
+  });
+
+  fileInput?.addEventListener('change', () => {
+    const selected = fileInput.files && fileInput.files[0];
+    if (!selected || !imagePreview) {
+      return;
+    }
+    console.log('[ADMIN][PREVIEW] Archivo seleccionado:', {
+      name: selected.name,
+      size: selected.size,
+      type: selected.type
+    });
+    const reader = new FileReader();
+    reader.onload = () => {
+      imagePreview.src = String(reader.result || '');
+      imagePreview.classList.add('visible');
+      console.log('[ADMIN][PREVIEW] Preview generada correctamente.');
+    };
+    reader.readAsDataURL(selected);
   });
 
   productForm?.addEventListener('submit', handleCreateProduct);

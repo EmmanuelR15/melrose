@@ -39,7 +39,10 @@
         <input name="precio" type="number" min="1" step="1" placeholder="Precio" required>
         <input name="categoria" placeholder="Categoria (REMERAS/CAMPERAS/...)" required>
         <input name="stock" type="number" min="0" step="1" placeholder="Stock" required>
-        <input name="imagen_url" placeholder="URL de imagen">
+        <input id="imagenArchivo" name="imagen_archivo" type="file" accept="image/*" required>
+        <div class="image-preview-wrap">
+          <img id="imagePreview" class="image-preview" alt="Preview de imagen seleccionada">
+        </div>
         <input name="descripcion" placeholder="Descripcion">
         <input name="talles" placeholder="Talles separados por coma (S,M,L)">
         <label class="check-wrap"><input name="destacado" type="checkbox"> Destacado</label>

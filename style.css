@@ -540,6 +540,25 @@ h3 {
   color: var(--gris);
 }
 
+.image-preview-wrap {
+  border: 1px solid var(--borde);
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  background: var(--negro);
+}
+
+.image-preview {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: none;
+}
+
+.image-preview.visible {
+  display: block;
+}
+
 .table-scroll {
   overflow-x: auto;
 }
