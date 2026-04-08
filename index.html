@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MELROSE | Ecommerce de Ropa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">MELROSE</a>
+    <div class="nav-links">
+      <a href="#productos">SHOP</a>
+      <a href="#destacado">EDITORIAL</a>
+      <a href="admin.html">ADMIN</a>
+    </div>
+    <button class="cart-trigger" id="cartOpenBtn" aria-label="Abrir carrito">
+      <span class="cart-icon">BAG</span>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </nav>
+
+  <header class="hero">
+    <p class="hero-kicker">MELROSE / DROP 01</p>
+    <h1>NUEVA<br>TEMPORADA<br>2026</h1>
+    <p class="hero-description">Siluetas limpias, color profundo y textura premium. Una coleccion pensada para moverse entre ciudad, noche y diario.</p>
+    <button class="btn-primary" id="heroCtaBtn">VER COLECCION</button>
+  </header>
+
+  <section id="productos" class="categories-wrap">
+    <div class="categories" id="categoryFilters">
+      <button class="category-btn active" data-cat="TODO">TODO</button>
+      <button class="category-btn" data-cat="REMERAS">REMERAS</button>
+      <button class="category-btn" data-cat="CAMPERAS">CAMPERAS</button>
+      <button class="category-btn" data-cat="PANTALONES">PANTALONES</button>
+      <button class="category-btn" data-cat="ACCESORIOS">ACCESORIOS</button>
+    </div>
+  </section>
+
+  <main class="products-section">
+    <div class="products-grid" id="productsGrid"></div>
+  </main>
+
+  <section id="destacado" class="featured-banner">
+    <p class="featured-label">SELECCION EDITORIAL</p>
+    <h2>LA FORMA DEL NEGRO</h2>
+    <button class="btn-primary">EXPLORAR DESTACADOS</button>
+  </section>
+
+  <footer class="footer">
+    <span class="logo">MELROSE</span>
+    <div class="footer-links">
+      <a href="#productos">SHOP</a>
+      <a href="#destacado">DESTACADO</a>
+      <a href="admin.html">STAFF</a>
+    </div>
+    <p>© 2024 Melrose. Todos los derechos reservados.</p>
+  </footer>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrito lateral">
+    <div class="cart-header">
+      <h3>TU CARRITO</h3>
+      <button class="icon-btn" id="cartCloseBtn" aria-label="Cerrar carrito">X</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>TOTAL</span>
+        <strong id="cartTotalText">$ 0,00</strong>
+      </div>
+      <button class="btn-primary checkout-btn">FINALIZAR COMPRA</button>
+    </div>
+  </aside>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>

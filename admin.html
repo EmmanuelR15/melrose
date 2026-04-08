@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MELROSE | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+  <section class="admin-login-screen" id="adminLogin">
+    <form class="admin-login-card" id="adminLoginForm">
+      <h1>MELROSE</h1>
+      <p>Acceso de administracion</p>
+      <input id="adminPassword" type="password" placeholder="Contrasena" autocomplete="off">
+      <button type="submit" class="btn-primary">INGRESAR</button>
+      <small id="loginError">Contrasena incorrecta.</small>
+    </form>
+  </section>
+
+  <section class="admin-panel" id="adminPanel">
+    <header class="admin-topbar">
+      <div>
+        <span class="logo">MELROSE</span>
+        <p>Panel de productos</p>
+      </div>
+      <div class="admin-top-actions">
+        <a href="index.html" class="btn-outline">VER TIENDA</a>
+        <button id="btnLogout" class="btn-outline">CERRAR SESION</button>
+      </div>
+    </header>
+
+    <div class="admin-form-wrap">
+      <h2>NUEVO PRODUCTO</h2>
+      <form id="productForm" class="admin-form-grid">
+        <input name="nombre" placeholder="Nombre" required>
+        <input name="precio" type="number" min="1" step="1" placeholder="Precio" required>
+        <input name="categoria" placeholder="Categoria (REMERAS/CAMPERAS/...)" required>
+        <input name="stock" type="number" min="0" step="1" placeholder="Stock" required>
+        <input name="imagen_url" placeholder="URL de imagen">
+        <input name="descripcion" placeholder="Descripcion">
+        <input name="talles" placeholder="Talles separados por coma (S,M,L)">
+        <label class="check-wrap"><input name="destacado" type="checkbox"> Destacado</label>
+        <button type="submit" class="btn-primary">AGREGAR PRODUCTO</button>
+      </form>
+    </div>
+
+    <div class="admin-table-wrap">
+      <h2>PRODUCTOS</h2>
+      <div class="table-scroll">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoria</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
