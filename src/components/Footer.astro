@@ -1,21 +1,21 @@
 ---
-// Footer con logo y redes
+// Clean footer with logo, links, and copyright
 ---
 
 <footer class="footer" id="footer">
   <div class="footer-container">
     <div class="footer-logo">
       <img src="/logomelrose.jpg" alt="MELROSE | STW" class="logo-img" />
-      <span class="brand-text">MELROSE | STW</span>
     </div>
 
     <div class="footer-links">
       <a href="#productos">SHOP</a>
-      <a href="https://www.instagram.com/melrose.stw/" target="_blank" rel="noopener noreferrer">INSTAGRAM</a>
+      <a href="#lookbook">LOOKBOOK</a>
+      <a href="#nosotros">NOSOTROS</a>
     </div>
 
     <div class="footer-copyright">
-      <p>© 2026 MELROSE. ALL RIGHTS RESERVED.</p>
+      <p>© 2026 MELROSE. TODOS LOS DERECHOS RESERVADOS.</p>
     </div>
   </div>
 </footer>
@@ -31,40 +31,36 @@
   .footer-container {
     max-width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: start;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    justify-items: center;
   }
 
   .footer-logo {
+    justify-self: start;
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    align-items: center;
   }
 
   .logo-img {
-    height: 50px;
+    height: 40px;
     width: auto;
     object-fit: contain;
   }
 
-  .brand-text {
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    opacity: 0.8;
-  }
-
   .footer-links {
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
+    justify-content: center;
   }
 
   .footer-links a {
     font-size: 0.75rem;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     transition: color 0.3s ease;
+    color: var(--gris);
   }
 
   .footer-links a:hover {
@@ -72,9 +68,8 @@
   }
 
   .footer-copyright {
-    grid-column: 1 / -1;
-    padding-top: 3rem;
-    border-top: 1px solid var(--borde);
+    justify-self: end;
+    text-align: right;
   }
 
   .footer-copyright p {
