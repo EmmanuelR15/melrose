@@ -5,14 +5,24 @@ import Manifesto from '../components/Manifesto.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { supabase } from '../lib/supabase';
 
-// SSR Fetch: Los productos se cargan en el servidor
-const { data: products, error } = await supabase
-  .from('productos')
-  .select('*')
-  .order('created_at', { ascending: false });
+let products = [];
+let errorMessage = null;
 
-if (error) {
-  console.error('[SSR ERROR]', error);
+try {
+  const { data, error } = await supabase
+    .from('productos')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[SSR ERROR]', error);
+    errorMessage = 'No se pudieron cargar los productos en este momento.';
+  } else {
+    products = data ?? [];
+  }
+} catch (err) {
+  console.error('[SSR FETCH FAILED]', err);
+  errorMessage = 'Error al cargar los productos del catálogo.';
 }
 ---
 
@@ -22,6 +32,10 @@ if (error) {
     
     <Manifesto />
     
+    {errorMessage ? (
+      <p class="error-message">{errorMessage}</p>
+    ) : null}
+
     <section id="productos" class="section-gallery">
       <div class="section-title section-narrow">
         <p class="kicker">Catálogo</p>
