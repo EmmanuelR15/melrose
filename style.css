@@ -183,26 +183,26 @@ h3 {
   color: var(--blanco);
   letter-spacing: 0.3em;
   font-size: 0.85rem;
-  opacity: 0;
+  opacity: 1; /* Fallback */
 }
 
 .hero h1 {
   font-size: clamp(3.5rem, 15vw, 9rem);
   line-height: 0.9;
   margin: 1rem 0;
-  opacity: 0;
+  opacity: 1; /* Fallback */
 }
 
 .hero-description {
   max-width: 32rem;
   color: rgba(255,255,255,0.8);
   font-size: 0.95rem;
-  opacity: 0;
+  opacity: 1; /* Fallback */
 }
 
 .hero .btn-primary {
   margin-top: 2rem;
-  opacity: 0;
+  opacity: 1; /* Fallback */
 }
 
 
@@ -268,7 +268,7 @@ h3 {
   border: 1px solid var(--borde);
   transition: border-color 0.4s ease;
   overflow: hidden;
-  opacity: 0;
+  opacity: 1; /* Fallback */
 }
 
 .product-card.is-visible {
@@ -698,11 +698,16 @@ h3 {
 /* Responsividad Movil */
 @media (max-width: 768px) {
   .hero {
-    height: 85vh; /* A bit less on mobile for better viewport */
+    height: 85vh;
   }
 
   .hero h1 {
-    font-size: clamp(3rem, 12vw, 5rem);
+    font-size: 2rem !important; /* Force reduction */
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr 1fr; /* Force 2 columns */
+    gap: 0.8rem;
   }
 
   .nav-links {

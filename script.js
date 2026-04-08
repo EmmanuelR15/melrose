@@ -173,10 +173,11 @@ function initProductReveal() {
   const cards = gsap.utils.toArray('.product-card');
   if (!cards.length) return;
 
-  gsap.to(cards, {
+  // Usamos from() para que el estado final sea el CSS (visible)
+  gsap.from(cards, {
     delay: 0.1,
-    opacity: 1,
-    y: 0,
+    opacity: 0,
+    y: 40,
     duration: 0.8,
     stagger: 0.1,
     ease: "power2.out",
@@ -230,11 +231,11 @@ function initGSAPAnimations() {
     });
   });
 
-  // Hero Entry Sequence
+  // Hero Entry Sequence - Animamos DESDE opacidad 0
   const heroTL = gsap.timeline({ delay: 0.2 });
-  heroTL.to('.hero-kicker, .hero h1, .hero-description, .hero .btn-primary', {
-    opacity: 1,
-    y: 0,
+  heroTL.from('.hero-kicker, .hero h1, .hero-description, .hero .btn-primary', {
+    opacity: 0,
+    y: 50,
     duration: 1,
     stagger: 0.2,
     ease: "power3.out"
@@ -948,13 +949,11 @@ function smoothScrollTo(selector) {
   const elementPosition = elementRect - bodyRect;
   const offsetPosition = elementPosition - offset;
 
+  if (typeof gsap !== 'undefined' && gsap.to) {
     gsap.to(window, {
       duration: 1.25,
       scrollTo: { y: offsetPosition, autoKill: true },
-      ease: "power2.inOut",
-      onComplete: () => {
-        // Opción: limpiar hash si existiera, aunque evitamos que ocurra en el listener
-      }
+      ease: "power2.inOut"
     });
   } else {
     window.scrollTo({
