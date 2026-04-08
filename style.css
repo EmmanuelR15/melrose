@@ -92,13 +92,21 @@ h3 {
   z-index: 20;
 }
 
-.logo {
-  font-size: 1.9rem;
+.logo-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo {
+  height: 32px;
+  width: auto;
+  display: block;
+  filter: invert(1); /* For white logo on dark navbar */
 }
 
 .nav-links {
-  display: none;
-  gap: 1rem;
+  display: flex;
+  gap: 1.5rem;
 }
 
 .nav-links a {
@@ -712,6 +720,38 @@ h3 {
 .toast.show {
   transform: translateY(0);
   opacity: 1;
+}
+
+/* Responsividad Movil */
+@media (max-width: 768px) {
+  .hero {
+    height: 85vh; /* A bit less on mobile for better viewport */
+  }
+
+  .hero h1 {
+    font-size: clamp(3rem, 12vw, 5rem);
+  }
+
+  .nav-links {
+    display: none; /* Hide on very small screens or change to simple icon if needed */
+  }
+
+  .navbar {
+    padding: 0 1rem;
+    height: 60px;
+  }
+
+  .nav-logo {
+    height: 28px;
+  }
+
+  .cart-trigger {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .cart-icon {
+    font-size: 0.65rem;
+  }
 }
 
 /* Success Modal */

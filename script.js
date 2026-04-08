@@ -474,10 +474,21 @@ window.removeFromCart = function removeFromCart(id) {
 async function initStorePage() {
   const heroCtaBtn = document.getElementById('heroCtaBtn');
   if (heroCtaBtn) {
-    heroCtaBtn.addEventListener('click', () => {
-      document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
+    heroCtaBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      smoothScrollTo('#productos');
     });
   }
+
+  // Smooth Scroll para links internos
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+      smoothScrollTo(targetId);
+    });
+  });
 
   await cargarProductos('TODO');
   
@@ -864,6 +875,21 @@ function initTagsSystem() {
   btnAdd?.addEventListener('click', (e) => {
     e.preventDefault();
     addCurrentTag();
+  });
+}
+
+function smoothScrollTo(selector) {
+  const element = document.querySelector(selector);
+  if (!element) return;
+  const offset = 80;
+  const bodyRect = document.body.getBoundingClientRect().top;
+  const elementRect = element.getBoundingClientRect().top;
+  const elementPosition = elementRect - bodyRect;
+  const offsetPosition = elementPosition - offset;
+
+  window.scrollTo({
+    top: offsetPosition,
+    behavior: 'smooth'
   });
 }
 
