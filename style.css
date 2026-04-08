@@ -92,15 +92,8 @@ h3 {
   z-index: 20;
 }
 
-.logo-wrap {
-  display: flex;
-  align-items: center;
-}
-
-.nav-logo {
-  height: 48px; /* Slightly larger for the star detail */
-  width: auto;
-  display: block;
+.logo {
+  font-size: 1.9rem;
 }
 
 .nav-links {
@@ -740,8 +733,8 @@ h3 {
     height: 60px;
   }
 
-  .nav-logo {
-    height: 28px;
+  .logo {
+    font-size: 1.6rem;
   }
 
   .cart-trigger {
