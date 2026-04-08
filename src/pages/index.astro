@@ -52,7 +52,7 @@ try {
 	}
 
   .section-title {
-    margin-bottom: 5rem;
+    margin-bottom: 8rem;
     text-align: left;
   }
 
@@ -75,9 +75,9 @@ try {
 
   .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 4rem 2rem;
-    padding: 0 5%;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 8rem 4rem;
+    padding: 0 8%;
   }
 
   .empty-message {
@@ -93,15 +93,16 @@ try {
   @media (min-width: 1024px) {
     .products-grid {
       grid-template-columns: 1fr 1fr;
+      gap: 12rem 6rem;
     }
     
     .products-grid > :nth-child(odd) {
-      width: 85%;
+      width: 90%;
     }
     
     .products-grid > :nth-child(even) {
       width: 100%;
-      margin-top: 10rem; /* Escalonado editorial */
+      margin-top: 15rem; /* Escalonado editorial */
     }
   }
 </style>

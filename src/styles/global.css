@@ -77,6 +77,10 @@ h3 {
   display: none;
 }
 
+.custom-cursor.grow {
+  transform: translate(-50%, -50%) scale(2);
+}
+
 @media (min-width: 1025px) {
   .custom-cursor {
     display: block;
@@ -85,7 +89,7 @@ h3 {
 
 /* Editorial Spacing */
 .section-gallery {
-  padding: 10rem 5%;
+  padding: 15rem 8%;
 }
 
 .section-narrow {

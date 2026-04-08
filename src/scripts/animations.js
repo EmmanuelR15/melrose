@@ -69,6 +69,7 @@ export function initAnimations() {
 
   // 3. Hero Entrance (Split Text manual)
   const heroTitle = document.getElementById('heroTitle');
+  const heroKicker = document.getElementById('heroKicker');
   if (heroTitle) {
     const text = heroTitle.innerText;
     heroTitle.innerHTML = text.split('').map(char => 
@@ -76,7 +77,7 @@ export function initAnimations() {
     ).join('');
 
     const tl = gsap.timeline({ delay: 0.5 });
-    tl.from('.hero-kicker', { opacity: 0, y: 20, duration: 0.8 });
+    tl.from(heroKicker, { opacity: 0, y: 30, duration: 1, ease: "power3.out" });
     tl.from('.char', {
       opacity: 0,
       y: 100,
@@ -121,5 +122,19 @@ export function initAnimations() {
       duration: 1.6,
       ease: "power2.out"
     }, 0);
+  });
+
+  // 5. Parallax Effect for Product Images
+  gsap.utils.toArray('.product-img').forEach((img) => {
+    gsap.to(img, {
+      yPercent: -20,
+      ease: "none",
+      scrollTrigger: {
+        trigger: img,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true
+      }
+    });
   });
 }
