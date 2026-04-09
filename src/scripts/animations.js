@@ -90,7 +90,7 @@ export function initAnimations() {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: card,
-        start: "top 85%",
+        start: "top 90%",
         toggleActions: "play none none none",
       },
     });
@@ -115,11 +115,11 @@ export function initAnimations() {
     );
 
     // Stagger effect para cada tarjeta
-    tl.from(
+    tl.to(
       card,
       {
-        opacity: 0,
-        y: 20,
+        opacity: 1,
+        y: 0,
         duration: 0.6,
         ease: "power3.out",
       },
