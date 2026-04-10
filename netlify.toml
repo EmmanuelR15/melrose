@@ -3,7 +3,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "22"
 
 # Redirects for SPA behavior
 [[redirects]]
@@ -61,5 +61,12 @@
   package = "@netlify/plugin-lighthouse"
 
   [plugins.inputs]
-    audit_tags = ["performance", "accessibility", "best-practices", "seo"]
+    audits = ["performance", "accessibility", "best-practices", "seo"]
     output_path = "lighthouse-reports"
+    fail_deploy_on_score_thresholds = true
+
+    [plugins.inputs.thresholds]
+      performance = 90
+      accessibility = 90
+      best-practices = 90
+      seo = 90
