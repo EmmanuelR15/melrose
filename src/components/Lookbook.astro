@@ -1,5 +1,58 @@
 ---
-// Lookbook gallery component with asymmetric urban layout
+// Lookbook gallery component with Supabase trends integration
+import { getTrends } from '../lib/supabase-trends.js';
+
+// Obtener tendencias desde Supabase
+const trends = await getTrends(6);
+
+// Fallback estático si no hay tendencias en Supabase
+const fallbackTrends = [
+  {
+    id: 'fallback-1',
+    titulo: 'URBAN ESSENTIALS',
+    subtitulo: 'Lo básico con actitud',
+    imagen_url: 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800',
+    descripcion: 'Piezas fundamentales para el día a día urbano'
+  },
+  {
+    id: 'fallback-2',
+    titulo: 'CITY NIGHT',
+    subtitulo: 'Estilo nocturno',
+    imagen_url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600',
+    descripcion: 'Looks perfectos para salir de noche'
+  },
+  {
+    id: 'fallback-3',
+    titulo: 'DEEP COLOR',
+    subtitulo: 'Colores intensos',
+    imagen_url: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400',
+    descripcion: 'Paleta de colores profundos y vibrantes'
+  },
+  {
+    id: 'fallback-4',
+    titulo: 'CLEAN LINES',
+    subtitulo: 'Siluetas limpias',
+    imagen_url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600',
+    descripcion: 'Líneas puras y minimalistas'
+  },
+  {
+    id: 'fallback-5',
+    titulo: 'STREETWEAR PREMIUM',
+    subtitulo: 'Alta gama urbana',
+    imagen_url: 'https://images.unsplash.com/photo-1583744946564-b52ac1c389c8?w=800',
+    descripcion: 'Streetwear con toque premium'
+  },
+  {
+    id: 'fallback-6',
+    titulo: 'TEXTURE PLAY',
+    subtitulo: 'Juego de texturas',
+    imagen_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800',
+    descripcion: 'Combinación de texturas interesantes'
+  }
+];
+
+// Usar tendencias de Supabase si existen, sino usar fallback
+const lookbookItems = trends.length > 0 ? trends : fallbackTrends;
 ---
 
 <section class="lookbook" id="lookbook">
@@ -10,40 +63,15 @@
     </div>
 
     <div class="lookbook-grid">
-      <div class="lookbook-item">
-        <img src="https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800" alt="Urban streetwear look" loading="lazy" />
-        <div class="lookbook-overlay">
-          <span>URBAN ESSENTIALS</span>
+      {lookbookItems.map((item) => (
+        <div class="lookbook-item">
+          <img src={item.imagen_url} alt={item.titulo} loading="lazy" />
+          <div class="lookbook-overlay">
+            <span>{item.titulo}</span>
+            {item.subtitulo && <p>{item.subtitulo}</p>}
+          </div>
         </div>
-      </div>
-
-      <div class="lookbook-item">
-        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600" alt="Street style" loading="lazy" />
-        <div class="lookbook-overlay">
-          <span>CITY NIGHT</span>
-        </div>
-      </div>
-
-      <div class="lookbook-item">
-        <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400" alt="Premium texture" loading="lazy" />
-        <div class="lookbook-overlay">
-          <span>DEEP COLOR</span>
-        </div>
-      </div>
-
-      <div class="lookbook-item">
-        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600" alt="Clean silhouettes" loading="lazy" />
-        <div class="lookbook-overlay">
-          <span>CLEAN LINES</span>
-        </div>
-      </div>
-
-      <div class="lookbook-item">
-        <img src="https://images.unsplash.com/photo-1583744946564-b52ac1c389c8?w=800" alt="Premium streetwear" loading="lazy" />
-        <div class="lookbook-overlay">
-          <span>STREETWEAR PREMIUM</span>
-        </div>
-      </div>
+      ))}
     </div>
   </div>
 </section>

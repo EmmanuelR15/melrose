@@ -4,8 +4,10 @@ import Hero from '../components/Hero.astro';
 import Ticker from '../components/Ticker.astro';
 import FeaturedProducts from '../components/FeaturedProducts.astro';
 import Lookbook from '../components/Lookbook.astro';
+import InstagramFeed from '../components/InstagramFeed.astro';
 import About from '../components/About.astro';
 import ProductCard from '../components/ProductCard.astro';
+import WishlistManager from '../components/WishlistManager.astro';
 import { supabase } from '../lib/supabase';
 
 let products = [];
@@ -50,6 +52,7 @@ try {
 		<Ticker />
 		<FeaturedProducts />
 		<Lookbook />
+		<InstagramFeed />
 		<About />
 
 		<section id="productos" class="products-section">
@@ -80,6 +83,7 @@ try {
 			</div>
 		</section>
 	</main>
+	<WishlistManager />
 </Layout>
 
 <style>

@@ -1,0 +1,260 @@
+---
+// Wishlist Manager Component - Client-side functionality
+---
+
+<script type="module">
+  // Wishlist Management Logic
+  class WishlistManager {
+    constructor() {
+      this.wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      this.updateUI();
+      this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+      // Add to wishlist buttons
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('wishlist-btn')) {
+          this.toggleWishlistItem(e.target);
+        }
+      });
+    }
+
+    toggleWishlistItem(button) {
+      const productId = button.dataset.id;
+      const productName = button.dataset.name || 'Producto';
+      const productPrice = parseFloat(button.dataset.price) || 0;
+      const productImage = button.dataset.image || '';
+      const productCategory = button.dataset.category || '';
+
+      const itemExistente = this.wishlist.find(i => i.id === productId);
+
+      if (itemExistente) {
+        // Remove from wishlist
+        this.wishlist = this.wishlist.filter(item => item.id !== productId);
+        button.classList.remove('active');
+        button.innerHTML = 'CORAZÓN';
+      } else {
+        // Add to wishlist
+        const item = {
+          id: productId,
+          name: productName,
+          price: productPrice,
+          image: productImage,
+          category: productCategory,
+          addedAt: new Date().toISOString()
+        };
+        this.wishlist.push(item);
+        button.classList.add('active');
+        button.innerHTML = 'CORAZÓN LLENO';
+      }
+
+      this.save();
+      this.updateUI();
+    }
+
+    isInWishlist(productId) {
+      return this.wishlist.some(item => item.id === productId);
+    }
+
+    save() {
+      localStorage.setItem('wishlist', JSON.stringify(this.wishlist));
+    }
+
+    updateUI() {
+      // Update wishlist badge
+      const badge = document.getElementById('wishlistBadge');
+      if (badge) {
+        badge.textContent = this.wishlist.length;
+        badge.style.display = this.wishlist.length > 0 ? 'flex' : 'none';
+      }
+
+      // Update wishlist page items
+      const wishlistContainer = document.getElementById('wishlistItems');
+      if (wishlistContainer) {
+        wishlistContainer.innerHTML = this.wishlist.length
+          ? this.wishlist.map(item => `
+              <div class="wishlist-item">
+                <div class="item-image">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" />
+                </div>
+                <div class="item-info">
+                  <h4>${item.name}</h4>
+                  <p class="item-category">${item.category}</p>
+                  <p class="item-price">$ ${item.price.toLocaleString('es-AR')}</p>
+                </div>
+                <div class="item-actions">
+                  <button class="btn-primary add-to-cart" 
+                          data-id="${item.id}" 
+                          data-name="${item.name}" 
+                          data-price="${item.price}">
+                    AGREGAR
+                  </button>
+                  <button class="remove-btn" data-id="${item.id}">
+                    ELIMINAR
+                  </button>
+                </div>
+              </div>
+            `).join('')
+          : '<p class="empty-wishlist">No tienes productos favoritos</p>';
+
+        // Add event listeners to remove buttons
+        wishlistContainer.querySelectorAll('.remove-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const productId = e.target.dataset.id;
+            this.wishlist = this.wishlist.filter(item => item.id !== productId);
+            this.save();
+            this.updateUI();
+          });
+        });
+      }
+    }
+
+    // Initialize wishlist buttons on product cards
+    initializeWishlistButtons() {
+      document.querySelectorAll('.wishlist-btn').forEach(button => {
+        const productId = button.dataset.id;
+        if (this.isInWishlist(productId)) {
+          button.classList.add('active');
+          button.innerHTML = 'CORAZÓN LLENO';
+        }
+      });
+    }
+  }
+
+  // Initialize wishlist on page load
+  const wishlistManager = new WishlistManager();
+
+  // Re-initialize after page transitions
+  document.addEventListener('astro:after-swap', () => {
+    wishlistManager.initializeWishlistButtons();
+  });
+
+  // Export for use in other components
+  window.wishlistManager = wishlistManager;
+</script>
+
+<style>
+  .wishlist-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    border: none;
+    color: var(--blanco);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    font-size: 1.2rem;
+  }
+
+  .wishlist-btn:hover {
+    background: var(--rojo);
+    transform: scale(1.1);
+  }
+
+  .wishlist-btn.active {
+    background: var(--rojo);
+    color: var(--blanco);
+  }
+
+  .wishlist-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--rojo);
+    color: var(--blanco);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+  }
+
+  .wishlist-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--negro-suave);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .item-image img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .item-info h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .item-category {
+    color: var(--gris);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .item-price {
+    color: var(--rojo);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .item-actions .btn-primary {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    background: var(--rojo);
+    color: var(--blanco);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .item-actions .btn-primary:hover {
+    background: var(--rojo-oscuro);
+  }
+
+  .item-actions .remove-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    background: transparent;
+    color: var(--gris);
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .item-actions .remove-btn:hover {
+    color: var(--rojo);
+    border-color: var(--rojo);
+  }
+
+  .empty-wishlist {
+    text-align: center;
+    color: var(--gris);
+    padding: 3rem;
+  }
+</style>
