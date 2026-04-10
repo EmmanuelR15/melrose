@@ -51,17 +51,26 @@
       const productId = button.dataset.id;
       const productName = button.dataset.name || 'Producto';
       const productPrice = parseFloat(button.dataset.price) || 0;
+      const stock = parseInt(button.dataset.stock) || 0;
+
+      const itemExistente = this.cart.find(i => i.id === productId);
+      const cantidadActual = itemExistente ? itemExistente.quantity : 0;
+
+      if (cantidadActual >= stock) {
+        alert(`Stock agotado. Solo hay ${stock} unidad/es disponible/s.`);
+        return;
+      }
 
       const item = {
         id: productId,
         name: productName,
         price: productPrice,
+        stock: stock,
         quantity: 1
       };
 
-      const existing = this.cart.find(p => p.id === productId);
-      if (existing) {
-        existing.quantity++;
+      if (itemExistente) {
+        itemExistente.quantity++;
       } else {
         this.cart.push(item);
       }
@@ -80,7 +89,8 @@
     updateQuantity(productId, quantity) {
       const item = this.cart.find(p => p.id === productId);
       if (item) {
-        item.quantity = Math.max(1, quantity);
+        const newQty = Math.max(1, Math.min(quantity, item.stock));
+        item.quantity = newQty;
         this.save();
         this.updateUI();
       }
@@ -108,7 +118,7 @@
                   <p class="item-price">$ ${item.price.toLocaleString('es-AR')}</p>
                 </div>
                 <div class="item-controls">
-                  <input type="number" value="${item.quantity}" min="1" data-id="${item.id}" class="qty-input">
+                  <input type="number" value="${item.quantity}" min="1" max="${item.stock}" data-id="${item.id}" class="qty-input">
                   <button class="remove-btn" data-id="${item.id}">Eliminar</button>
                 </div>
               </div>
