@@ -5,7 +5,7 @@
 <footer class="footer" id="footer">
   <div class="footer-container">
     <div class="footer-logo">
-      <img src="/logo.png" alt="MELROSE | STW" class="logo-img" />
+      <span class="logo-neon">MELROSE</span>
     </div>
 
     <div class="footer-links">
@@ -43,12 +43,25 @@
     align-items: center;
   }
 
-  .logo-img {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-    mix-blend-mode: screen;
-    background: transparent;
+  .logo-neon {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: #ffffff;
+    letter-spacing: 0.15em;
+    text-shadow:
+      0 0 5px rgba(192, 57, 43, 0.8),
+      0 0 10px rgba(192, 57, 43, 0.6),
+      0 0 20px rgba(192, 57, 43, 0.4),
+      0 0 40px rgba(192, 57, 43, 0.2);
+    transition: text-shadow 0.3s ease;
+  }
+
+  .logo-neon:hover {
+    text-shadow:
+      0 0 5px rgba(192, 57, 43, 1),
+      0 0 15px rgba(192, 57, 43, 0.8),
+      0 0 30px rgba(192, 57, 43, 0.6),
+      0 0 60px rgba(192, 57, 43, 0.3);
   }
 
   .footer-links {
@@ -96,8 +109,5 @@
       gap: 1rem;
     }
 
-    .logo-img {
-      height: 40px;
-    }
   }
 </style>
