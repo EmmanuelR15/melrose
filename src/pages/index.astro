@@ -72,7 +72,9 @@ try {
 							<ProductCard product={product} client:load />
 						))
 					) : (
-						<p class="empty-message">El catálogo está en mantenimiento. Volvé a cargar la página en unos minutos.</p>
+						<div class="no-products">
+							<p>No hay productos en esta categoría todavía.</p>
+						</div>
 					)}
 				</div>
 			</div>
@@ -147,15 +149,21 @@ try {
 		grid-template-columns: repeat(3, 1fr);
 		gap: 2rem;
 		margin-bottom: 6rem;
+		min-height: 400px;
 	}
 
-	.empty-message {
+	.no-products {
 		grid-column: 1 / -1;
 		text-align: center;
-		font-size: 1rem;
+		padding: 6rem 2rem;
 		color: var(--gris);
-		opacity: 0.8;
-		margin: 4rem 0;
+		font-size: 1rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		min-height: 300px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	@media (max-width: 768px) {
@@ -197,6 +205,28 @@ try {
 	document.addEventListener('DOMContentLoaded', () => {
 		const filterButtons = document.querySelectorAll('.filter-btn');
 		const productCards = document.querySelectorAll('.product-card');
+		const noProductsMessage = document.querySelector('.no-products');
+
+		function updateNoProductsMessage() {
+			if (!noProductsMessage) return;
+			
+			const visibleCards = Array.from(productCards).filter(card => card.style.display !== 'none');
+			if (visibleCards.length === 0 && productCards.length > 0) {
+				// Show no-products message when filtering results in empty state
+				const tempMessage = document.createElement('div');
+				tempMessage.className = 'no-products';
+				tempMessage.innerHTML = '<p>No hay productos en esta categoría todavía.</p>';
+				noProductsMessage.parentNode.appendChild(tempMessage);
+				noProductsMessage.style.display = 'none';
+			} else if (visibleCards.length > 0) {
+				// Hide no-products message when there are visible products
+				const tempMessages = document.querySelectorAll('.no-products:not(:first-child)');
+				tempMessages.forEach(msg => msg.remove());
+				if (noProductsMessage && productCards.length === 0) {
+					noProductsMessage.style.display = 'flex';
+				}
+			}
+		}
 
 		filterButtons.forEach(button => {
 			button.addEventListener('click', () => {
@@ -215,6 +245,8 @@ try {
 						card.style.display = 'none';
 					}
 				});
+
+				updateNoProductsMessage();
 			});
 		});
 	});
