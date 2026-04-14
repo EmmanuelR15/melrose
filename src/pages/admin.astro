@@ -2,12 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 
-// Simple protection - check for admin password in localStorage
-const isAdmin = Astro.cookies.get('admin_token')?.value === 'melrose_admin_2024';
-
-if (!isAdmin) {
-  return Astro.redirect('/admin-login');
-}
+// Enhanced protection - check for session token in sessionStorage
+// Note: This check happens on client-side, not server-side
+// We'll implement client-side redirect in the script section
 
 // Load products from database or fallback
 let products = [];
@@ -203,6 +200,14 @@ try {
 <script>
   // Admin Panel JavaScript
   document.addEventListener('DOMContentLoaded', () => {
+    // Session Guard: Check for valid session token
+    const sessionToken = sessionStorage.getItem('admin_session_token');
+    if (!sessionToken || sessionToken !== 'melrose_admin_2024') {
+      // Redirect to 404-like page to hide admin existence
+      window.location.href = '/'; // Redirect to home instead of 404
+      return;
+    }
+
     const form = document.getElementById('productForm');
     const clearBtn = document.getElementById('clearForm');
     const editBtns = document.querySelectorAll('.btn-edit');

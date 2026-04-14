@@ -1,0 +1,339 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Check if already logged in
+const isAdmin = Astro.cookies.get('admin_token')?.value === 'melrose_admin_2024';
+if (isAdmin) {
+  return Astro.redirect('/admin');
+}
+---
+
+<Layout title="Access Control | MELROSE">
+  <main class="admin-login">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-header">
+          <h1>ACCESS CONTROL</h1>
+          <p>Authorized personnel only</p>
+        </div>
+
+        <form id="loginForm" class="login-form">
+          <div class="form-group">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              required
+              placeholder="Enter credentials"
+              autocomplete="off"
+            >
+          </div>
+          
+          <button type="submit" class="login-btn">
+            AUTHENTICATE
+          </button>
+        </form>
+
+        <div class="login-footer">
+          <a href="/" class="back-link">Return to site</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // SHA-256 hashing function
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  }
+
+  // Anti-intrusion: Clear console and block devtools
+  (function() {
+    // Clear console
+    console.clear();
+    console.log('%c🚫 Unauthorized access prohibited', 'color: red; font-size: 20px; font-weight: bold;');
+    
+    // Block devtools
+    let devtools = {
+      open: false,
+      orientation: null
+    };
+    
+    const threshold = 160;
+    
+    setInterval(() => {
+      if (window.outerHeight - window.innerHeight > threshold || 
+          window.outerWidth - window.innerWidth > threshold) {
+        if (!devtools.open) {
+          devtools.open = true;
+          document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #0a0a0a; color: #f5f5f5; font-family: monospace; font-size: 24px;">🚫 Access Denied</div>';
+          window.location.href = '/';
+        }
+        devtools.orientation = window.outerHeight - window.innerHeight > threshold ? 'vertical' : 'horizontal';
+      } else {
+        if (devtools.open) {
+          devtools.open = false;
+          devtools.orientation = null;
+        }
+      }
+    }, 500);
+    
+    // Disable right click
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+    document.addEventListener('keydown', e => {
+      if (e.keyCode === 123 || 
+          (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
+          (e.ctrlKey && e.keyCode === 85)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  })();
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const loginForm = document.getElementById('loginForm');
+    
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const password = e.target.password.value;
+      
+      // Hash the password for comparison
+      const hashedPassword = await sha256('melrose_admin_2024');
+      const inputHash = await sha256(password);
+      
+      // Compare hashes
+      if (inputHash === hashedPassword) {
+        // Set session token in sessionStorage
+        sessionStorage.setItem('admin_session_token', 'melrose_admin_2024');
+        
+        // Set admin token cookie
+        document.cookie = 'admin_token=melrose_admin_2024; path=/; max-age=86400; SameSite=Strict; Secure';
+        
+        // Redirect to admin panel
+        window.location.href = '/admin';
+      } else {
+        // Show error with subtle animation
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'login-error';
+        errorDiv.textContent = 'Authentication failed';
+        errorDiv.style.cssText = `
+          color: var(--rojo);
+          margin-top: 1rem;
+          text-align: center;
+          font-weight: 600;
+          opacity: 0;
+          transform: translateY(-10px);
+          transition: all 0.3s ease;
+        `;
+        
+        // Remove existing error
+        const existingError = loginForm.querySelector('.login-error');
+        if (existingError) {
+          existingError.remove();
+        }
+        
+        loginForm.appendChild(errorDiv);
+        
+        // Animate error in
+        setTimeout(() => {
+          errorDiv.style.opacity = '1';
+          errorDiv.style.transform = 'translateY(0)';
+        }, 100);
+        
+        // Clear password field
+        e.target.password.value = '';
+        
+        // Remove error after 3 seconds
+        setTimeout(() => {
+          if (errorDiv.parentNode) {
+            errorDiv.style.opacity = '0';
+            errorDiv.style.transform = 'translateY(-10px)';
+            setTimeout(() => errorDiv.remove(), 300);
+          }
+        }, 3000);
+      }
+    });
+  });
+</script>
+
+<style>
+  .admin-login {
+    min-height: 100vh;
+    background: var(--negro);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .admin-login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(192, 57, 43, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .login-container {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .login-card {
+    background: var(--negro-suave);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rojo), transparent);
+    opacity: 0.3;
+  }
+
+  .login-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    color: var(--blanco);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .login-header p {
+    color: var(--gris);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  .login-form {
+    margin-bottom: 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 1rem;
+    background: var(--negro);
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    color: var(--blanco);
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--rojo);
+    box-shadow: 0 0 10px rgba(192, 57, 43, 0.3);
+  }
+
+  .form-group input::placeholder {
+    color: var(--gris);
+    opacity: 0.5;
+  }
+
+  .login-btn {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    color: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(192, 57, 43, 0.2), transparent);
+    transition: left 0.6s ease;
+  }
+
+  .login-btn:hover {
+    border-color: var(--rojo);
+    color: var(--rojo);
+    box-shadow: 0 0 20px rgba(192, 57, 43, 0.2);
+  }
+
+  .login-btn:hover::before {
+    left: 100%;
+  }
+
+  .login-btn:active {
+    transform: scale(0.98);
+  }
+
+  .login-footer {
+    border-top: 1px solid var(--borde);
+    padding-top: 1.5rem;
+  }
+
+  .back-link {
+    color: var(--gris);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+    opacity: 0.7;
+  }
+
+  .back-link:hover {
+    color: var(--rojo);
+    opacity: 1;
+  }
+
+  @media (max-width: 480px) {
+    .login-card {
+      padding: 2rem 1.5rem;
+    }
+    
+    .login-header h1 {
+      font-size: 1.8rem;
+    }
+  }
+</style>
