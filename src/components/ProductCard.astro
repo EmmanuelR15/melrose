@@ -135,13 +135,13 @@ const formatter = new Intl.NumberFormat('es-AR', {
     transition: all 0.3s ease;
   }
 
-  .wishlist-btn.active .heart-icon {
+  .wishlist-btn.active svg {
     fill: var(--magenta);
     stroke: var(--magenta);
     filter: drop-shadow(0 0 8px rgba(255, 0, 255, 0.8));
   }
 
-  .wishlist-btn:not(.active) .heart-icon {
+  .wishlist-btn:not(.active) svg {
     fill: none;
     stroke: currentColor;
   }
