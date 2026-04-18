@@ -10,7 +10,7 @@ export function initAnimations() {
   // 1. Lenis Smooth Scroll
   if (!lenis) {
     lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.5,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
@@ -81,65 +81,56 @@ export function initAnimations() {
     );
   }
 
-  // 5. Product Mask Reveals con micro-animaciones (DISABLED - causing unwanted scroll animation)
-  // const cards = gsap.utils.toArray(".product-card");
-  // cards.forEach((card, index) => {
-  //   const mask = card.querySelector(".product-image-mask");
-  //   const img = card.querySelector(".product-img");
+  // 5. Cinematic Parallax & Text Reveal
+  // Hero Parallax
+  const heroImg = document.querySelector('.hero-img');
+  if (heroImg) {
+    gsap.to(heroImg, {
+      yPercent: 20, // Moves down as user scrolls down
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".hero",
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+      }
+    });
+  }
 
-  //   const tl = gsap.timeline({
-  //     scrollTrigger: {
-  //       trigger: card,
-  //       start: "top 90%",
-  //       toggleActions: "play none none none",
-  //     },
-  //   });
+  // About Image Parallax
+  const aboutImg = document.querySelector('.about-image img');
+  if (aboutImg) {
+    gsap.fromTo(aboutImg, 
+      { yPercent: -15 },
+      {
+        yPercent: 15,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".about",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+        }
+      }
+    );
+  }
 
-  //   if (mask) {
-  //     tl.to(mask, {
-  //       scaleY: 0,
-  //       duration: 1.2,
-  //       ease: "power4.inOut",
-  //     });
-  //   }
-
-  //   tl.to(
-  //     img,
-  //     {
-  //       scale: 1,
-  //       opacity: 1,
-  //       duration: 1.4,
-  //       ease: "power2.out",
-  //     },
-  //     0,
-  //   );
-
-  //   // Stagger effect para cada tarjeta
-  //   tl.to(
-  //     card,
-  //     {
-  //       opacity: 1,
-  //       y: 0,
-  //       duration: 0.6,
-  //       ease: "power3.out",
-  //     },
-  //     0,
-  //   );
-  // });
-
-  // 6. Parallax Effect for Product Images (DISABLED - causing unwanted scroll animation)
-  // gsap.utils.toArray(".product-img").forEach((img) => {
-  //   gsap.to(img, {
-  //     yPercent: -25,
-  //     ease: "none",
-  //     scrollTrigger: {
-  //       trigger: img,
-  //       start: "top bottom",
-  //       end: "bottom top",
-  //       scrub: 0.8,
-  //     },
-  //   });
-  // });
+  // About Text Reveal (Manifesto)
+  const aboutTexts = document.querySelectorAll('.reveal-text');
+  if (aboutTexts.length > 0) {
+    gsap.from(aboutTexts, {
+      opacity: 0,
+      y: 20,
+      stagger: 0.2, // Line by line
+      duration: 1,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: ".about-columns",
+        start: "top 80%",
+        toggleActions: "play none none reverse"
+      }
+    });
+  }
 
   // 7. Add to Cart Button Pulse
   gsap.from(".btn-agregar", {

@@ -77,7 +77,18 @@ const formatter = new Intl.NumberFormat('es-AR', {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease;
+    transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .product-image-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(192, 57, 43, 0.15); /* Soft red overlay */
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+    z-index: 1;
   }
 
   .wishlist-btn {
@@ -147,7 +158,11 @@ const formatter = new Intl.NumberFormat('es-AR', {
   }
 
   .product-card:hover .product-img {
-    transform: scale(1.1);
+    transform: scale(1.15);
+  }
+
+  .product-card:hover .product-image-wrap::after {
+    opacity: 1;
   }
 
   .product-info {

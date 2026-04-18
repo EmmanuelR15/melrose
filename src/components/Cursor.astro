@@ -1,0 +1,79 @@
+---
+// Custom Magnetic Cursor Component
+---
+
+<div class="custom-cursor" id="customCursor"></div>
+
+<script>
+  import { gsap } from 'gsap';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Only run on non-touch devices
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+
+    const cursor = document.getElementById('customCursor');
+    if (!cursor) return;
+
+    // Center starting point
+    gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+
+    // QuickTo for super smooth performance
+    const xTo = gsap.quickTo(cursor, "x", {duration: 0.3, ease: "power3"});
+    const yTo = gsap.quickTo(cursor, "y", {duration: 0.3, ease: "power3"});
+    const scaleTo = gsap.quickTo(cursor, "scale", {duration: 0.3, ease: "power3.out"});
+
+    window.addEventListener("mousemove", (e) => {
+      xTo(e.clientX);
+      yTo(e.clientY);
+      // Ensure cursor is visible after first move
+      if (cursor.style.opacity === "0" || cursor.style.opacity === "") {
+        gsap.to(cursor, {opacity: 1, duration: 0.2});
+      }
+    });
+
+    // Expand on links and buttons
+    const handleMouseOver = (e) => {
+      const target = e.target as HTMLElement;
+      const isClickable = target.closest('a') || target.closest('button') || target.classList.contains('interactive');
+      if (isClickable) {
+        scaleTo(2.5);
+        cursor.classList.add('active');
+        
+        // Minor magnetic effect to center of element if it's a small button
+        /* We'll skip complex magnetism to avoid conflicts, just visual expansion */
+      } else {
+        scaleTo(1);
+        cursor.classList.remove('active');
+      }
+    };
+
+    document.addEventListener("mouseover", handleMouseOver);
+  });
+</script>
+
+<style>
+  .custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--rojo);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0; /* Hidden until first move */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .custom-cursor.active {
+    background-color: rgba(192, 57, 43, 0.15); /* Soft red fill */
+    border-color: rgba(192, 57, 43, 0.8);
+  }
+
+  @media (pointer: coarse) {
+    .custom-cursor {
+      display: none !important;
+    }
+  }
+</style>
