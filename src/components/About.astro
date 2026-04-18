@@ -1,139 +1,139 @@
 ---
-// About section with 50/50 layout and brand story
+// About section - Editorial layout with red vertical line, 3 columns, and full-height image
 ---
 
 <section class="about" id="nosotros">
-  <div class="container">
-    <div class="about-content">
-      <div class="about-text">
-        <h2>MELROSE | EST. 2026</h2>
-        <div class="about-story">
-          <p>
-            Melrose representa la evolución del streetwear contemporáneo, donde la estética urbana se encuentra 
-            con la excelencia artesanal. Fundada en 2026, nuestra marca responde a la necesidad de 
-            prendas que trascienden lo temporal y se convierten en extensiones de identidad personal.
-          </p>
-          <p>
-            Cada colección es una exploración del diálogo entre la ciudad y el individuo. 
-            Utilizamos materiales premium seleccionados globalmente, técnicas de construcción 
-            innovadoras y un diseño obsesivo con los detalles para crear piezas que resisten 
-            tanto el tiempo como las tendencias efímeras.
-          </p>
-          <p>
-            Melrose no sigue las reglas del fast fashion; las establece. Creemos en la durabilidad, 
-            la versatilidad y el poder transformador de una prenda bien diseñada. Nuestro compromiso 
-            es con quienes entienden que el estilo no es superficial, es fundamental.
-          </p>
-        </div>
-        <div class="about-values">
-          <div class="value">
-            <span class="value-number">01</span>
-            <span class="value-text">CALIDAD PREMIUM</span>
-          </div>
-          <div class="value">
-            <span class="value-number">02</span>
-            <span class="value-text">DISEÑO AUTÉNTICO</span>
-          </div>
-          <div class="value">
-            <span class="value-number">03</span>
-            <span class="value-text">ESTILO URBANO</span>
-          </div>
-        </div>
-      </div>
+  <div class="about-layout">
+    <div class="about-left">
+      <div class="red-line"></div>
+      <div class="about-text-area">
+        <h2>SOBRE NOSOTROS</h2>
 
-      <div class="about-image">
-        <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=600&auto=format&fit=crop" alt="Melrose Atelier" loading="lazy" />
-        <div class="image-overlay"></div>
+        <div class="about-columns">
+          <div class="about-col">
+            <span class="col-number">01</span>
+            <h3 class="col-title">HISTORIA</h3>
+            <p>Nacimos en 2026 con la visión de redefinir el streetwear argentino.</p>
+            <p>Cada prenda refleja nuestra pasión por la cultura urbana y el diseño auténtico.</p>
+          </div>
+
+          <div class="about-col">
+            <span class="col-number">02</span>
+            <h3 class="col-title">FILOSOFÍA</h3>
+            <p>Creemos que la moda es una extensión de la identidad personal.</p>
+            <p>No seguimos tendencias efímeras: creamos piezas que trascienden temporadas.</p>
+          </div>
+
+          <div class="about-col">
+            <span class="col-number">03</span>
+            <h3 class="col-title">COMPROMISO</h3>
+            <p>Materiales premium, producción consciente y atención obsesiva al detalle.</p>
+            <p>Nuestro compromiso es con la calidad y quienes valoran el buen diseño.</p>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <div class="about-image">
+      <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=600&auto=format&fit=crop" alt="Melrose Atelier" loading="lazy" />
     </div>
   </div>
 </section>
 
 <style>
   .about {
-    padding: 6rem 0;
-    background: var(--negro);
+    background: #000;
     border-top: 1px solid var(--borde);
+    overflow: hidden;
   }
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
+  .about-layout {
+    display: flex;
+    min-height: 600px;
   }
 
-  .about-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
+  .about-left {
+    flex: 0 0 60%;
+    display: flex;
+    position: relative;
+    padding: 5rem 3rem 5rem 0;
   }
 
-  .about-text h2 {
-    font-size: clamp(2.5rem, 8vw, 4rem);
-    font-weight: 900;
-    letter-spacing: 0.1em;
-    color: var(--blanco);
-    margin-bottom: 2rem;
-    font-family: 'Bebas Neue', sans-serif;
+  .red-line {
+    width: 4px;
+    background: #c0392b;
+    flex-shrink: 0;
+    margin-right: 3rem;
+    margin-left: 3rem;
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(192, 57, 43, 0.4);
   }
 
-  .about-story {
-    margin-bottom: 3rem;
-  }
-
-  .about-story p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: var(--gris);
-    margin-bottom: 1.5rem;
-  }
-
-  .about-story p:last-child {
-    margin-bottom: 0;
-  }
-
-  .about-values {
+  .about-text-area {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    justify-content: center;
   }
 
-  .value {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .value-number {
+  .about-text-area h2 {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--rojo);
-    letter-spacing: 0.05em;
-    min-width: 3rem;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    letter-spacing: 0.12em;
+    color: var(--blanco);
+    margin-bottom: 3rem;
+    font-weight: 400;
+    line-height: 1;
   }
 
-  .value-text {
-    font-size: 1rem;
-    color: var(--blanco);
+  .about-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+
+  .about-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .col-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: #c0392b;
     letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .col-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    color: var(--blanco);
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .about-col p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--gris);
+    margin: 0;
   }
 
   .about-image {
+    flex: 0 0 40%;
     position: relative;
-    width: 100%;
-    height: 500px;
     overflow: hidden;
-    border: 1px solid var(--borde);
   }
 
   .about-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
     transition: transform 0.6s ease;
   }
 
@@ -141,52 +141,69 @@
     transform: scale(1.05);
   }
 
-  .image-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(192, 57, 43, 0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  .about-image:hover .image-overlay {
-    opacity: 1;
-  }
-
-  @media (max-width: 768px) {
-    .about {
-      padding: 4rem 0;
-    }
-
-    .container {
-      padding: 0 1rem;
-    }
-
-    .about-content {
+  @media (max-width: 1024px) {
+    .about-columns {
       grid-template-columns: 1fr;
-      gap: 3rem;
+      gap: 2rem;
     }
 
-    .about-text h2 {
-      text-align: center;
+    .about-left {
+      flex: 0 0 55%;
+      padding: 4rem 2rem 4rem 0;
     }
 
-    .about-story {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .about-values {
-      align-items: center;
-    }
-
-    .value {
-      justify-content: center;
+    .red-line {
+      margin-left: 2rem;
+      margin-right: 2rem;
     }
 
     .about-image {
-      height: 300px;
-      order: -1;
+      flex: 0 0 45%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .about-layout {
+      flex-direction: column;
+      min-height: auto;
+    }
+
+    .about-left {
+      flex: none;
+      padding: 3rem 1.5rem;
+    }
+
+    .red-line {
+      display: none;
+    }
+
+    .about-text-area h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .about-text-area h2::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: #c0392b;
+      margin: 1rem auto 0;
+    }
+
+    .about-columns {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .about-col {
+      text-align: center;
+    }
+
+    .about-image {
+      flex: none;
+      height: 350px;
     }
   }
 </style>

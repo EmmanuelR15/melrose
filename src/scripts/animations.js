@@ -142,7 +142,7 @@ export function initAnimations() {
   // });
 
   // 7. Add to Cart Button Pulse
-  gsap.from(".add-to-cart", {
+  gsap.from(".btn-agregar", {
     stagger: 0.1,
     opacity: 0,
     scale: 0.8,
@@ -151,7 +151,7 @@ export function initAnimations() {
   });
 
   // 8. Hover effect en botones Add to Cart
-  document.querySelectorAll(".add-to-cart").forEach((btn) => {
+  document.querySelectorAll(".btn-agregar").forEach((btn) => {
     btn.addEventListener("mouseenter", () => {
       gsap.to(btn, {
         scale: 1.08,

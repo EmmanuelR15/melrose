@@ -103,12 +103,7 @@ h3 {
   }
 }
 
-/* Disable scroll animations for product cards */
-.product-card,
-.product-img {
-  animation: none !important;
-  transform: none !important;
-}
+/* Product card transform handled in component scope */
 
 /* Product Grid */
 .products-grid {

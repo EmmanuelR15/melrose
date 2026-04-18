@@ -41,7 +41,7 @@
 
       // Add to cart buttons
       document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('add-to-cart')) {
+        if (e.target.classList.contains('btn-agregar') || e.target.classList.contains('add-to-cart')) {
           this.addToCart(e.target);
         }
       });
