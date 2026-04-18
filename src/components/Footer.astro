@@ -1,22 +1,38 @@
 ---
-// Clean footer with logo, links, and copyright
+// Footer with large brand name, functional links, and copyright
 ---
 
 <footer class="footer" id="footer">
   <div class="footer-container">
-    <div class="footer-logo">
-      <span class="logo-neon">MELROSE</span>
+    <div class="footer-brand">
+      <span class="footer-logo">MELROSE</span>
+      <p class="footer-tagline">PREMIUM STREETWEAR — EST. 2026</p>
     </div>
 
-    <div class="footer-links">
-      <a href="#productos">SHOP</a>
-      <a href="#lookbook">LOOKBOOK</a>
-      <a href="#nosotros">NOSOTROS</a>
+    <div class="footer-nav">
+      <h4 class="footer-heading">NAVEGACIÓN</h4>
+      <div class="footer-links">
+        <a href="/">HOME</a>
+        <a href="#productos">SHOP</a>
+        <a href="#lookbook">LOOKBOOK</a>
+        <a href="#nosotros">NOSOTROS</a>
+        <a href="#ubicacion">CONTACTO</a>
+        <a href="/favoritos">FAVORITOS</a>
+      </div>
     </div>
 
-    <div class="footer-copyright">
-      <p>© 2026 MELROSE. TODOS LOS DERECHOS RESERVADOS.</p>
+    <div class="footer-info">
+      <h4 class="footer-heading">INFO</h4>
+      <div class="footer-links">
+        <span>Resistencia, Chaco, Argentina</span>
+        <span>Envíos a todo el país</span>
+      </div>
     </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-line"></div>
+    <p class="footer-copyright">© 2026 MELROSE. TODOS LOS DERECHOS RESERVADOS.</p>
   </div>
 </footer>
 
@@ -24,90 +40,121 @@
   .footer {
     background: var(--negro-suave);
     border-top: 1px solid var(--borde);
-    padding: 6rem 5% 3rem;
-    margin-top: 15rem;
+    padding: 5rem 5% 2rem;
+    margin-top: 0;
   }
 
   .footer-container {
-    max-width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 2rem;
-    align-items: center;
-    justify-items: center;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .footer-logo {
-    justify-self: start;
-    display: flex;
-    align-items: center;
-  }
-
-  .logo-neon {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
+    font-size: 3.5rem;
     color: #ffffff;
     letter-spacing: 0.15em;
+    line-height: 1;
     text-shadow:
-      0 0 5px rgba(192, 57, 43, 0.8),
-      0 0 10px rgba(192, 57, 43, 0.6),
-      0 0 20px rgba(192, 57, 43, 0.4),
-      0 0 40px rgba(192, 57, 43, 0.2);
-    transition: text-shadow 0.3s ease;
+      0 0 5px rgba(192, 57, 43, 0.6),
+      0 0 10px rgba(192, 57, 43, 0.4),
+      0 0 20px rgba(192, 57, 43, 0.2);
   }
 
-  .logo-neon:hover {
-    text-shadow:
-      0 0 5px rgba(192, 57, 43, 1),
-      0 0 15px rgba(192, 57, 43, 0.8),
-      0 0 30px rgba(192, 57, 43, 0.6),
-      0 0 60px rgba(192, 57, 43, 0.3);
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: center;
-  }
-
-  .footer-links a {
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: color 0.3s ease;
+  .footer-tagline {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
     color: var(--gris);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .footer-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    color: var(--blanco);
+    margin-bottom: 1.25rem;
+    font-weight: 400;
+  }
+
+  .footer-nav .footer-links,
+  .footer-info .footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .footer-links a,
+  .footer-links span {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gris);
+    transition: color 0.3s ease;
   }
 
   .footer-links a:hover {
     color: var(--rojo);
   }
 
-  .footer-copyright {
-    justify-self: end;
-    text-align: right;
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 3rem auto 0;
   }
 
-  .footer-copyright p {
+  .footer-line {
+    width: 100%;
+    height: 1px;
+    background: var(--borde);
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-copyright {
     font-size: 0.65rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    opacity: 0.6;
+    color: var(--gris);
+    opacity: 0.5;
+    text-align: center;
   }
 
   @media (max-width: 768px) {
     .footer {
-      padding: 4rem 3% 2rem;
-      margin-top: 10rem;
+      padding: 4rem 5% 2rem;
     }
 
     .footer-container {
       grid-template-columns: 1fr;
-      gap: 2rem;
+      gap: 2.5rem;
+      text-align: center;
     }
 
-    .footer-links {
-      gap: 1rem;
+    .footer-brand {
+      align-items: center;
     }
 
+    .footer-logo {
+      font-size: 2.8rem;
+    }
+
+    .footer-nav .footer-links,
+    .footer-info .footer-links {
+      align-items: center;
+    }
+
+    .footer-bottom {
+      margin-top: 2rem;
+    }
   }
 </style>
