@@ -124,7 +124,7 @@
           ? this.cart.map(item => `
               <div class="cart-item">
                 <img src="${item.image || 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=200'}" alt="${item.name}" class="cart-item-img" />
-                <div class="item-info">
+                <div class="cart-item-details">
                   <h4>${item.name}</h4>
                   <p class="item-price">$ ${item.price.toLocaleString('es-AR')}</p>
                 </div>
@@ -313,22 +313,22 @@
   .cart-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem;
-    background: #1a1a1a;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
+    gap: 15px;
+    padding: 10px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    height: 90px; /* Alto fijo para la fila */
+    overflow: hidden; /* Evita cualquier desborde residual */
     animation: slideIn 0.3s ease-out;
-    max-height: 100px;
   }
 
   .cart-item-img {
     width: 70px !important;
     height: 70px !important;
-    min-width: 70px;
-    aspect-ratio: 1/1;
-    object-fit: cover;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    aspect-ratio: 1/1 !important;
+    object-fit: cover !important;
     border-radius: 4px;
     overflow: hidden;
     flex-shrink: 0;
@@ -345,14 +345,12 @@
     }
   }
 
-  .item-info {
-    flex: 1;
+  .cart-item-details {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    align-items: flex-start;
-    justify-content: center;
-    min-width: 0;
+    gap: 4px;
+    flex-grow: 1; /* Ocupa el espacio central */
+    min-width: 0; /* Permite que el texto se trunque */
   }
 
   .item-info h4 {
