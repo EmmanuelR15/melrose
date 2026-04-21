@@ -77,15 +77,20 @@ if (isAdmin) {
                     <input type="number" id="productPrice" name="precio" min="0" step="100" required>
                   </div>
                   
-                  <div class="form-group">
-                    <label for="productCategory">Categoría *</label>
-                    <div class="category-input-wrapper">
-                      <select id="productCategory" name="categoria" required>
-                        <option value="">Cargando categorías...</option>
-                      </select>
-                      <button type="button" id="addCategoryBtn" class="btn-add-mini" title="Agregar nueva categoría">+</button>
+                    <div class="form-group">
+                      <label for="productCategory">Categoría *</label>
+                      <div class="category-field-container">
+                        <div class="category-input-wrapper">
+                          <select id="productCategory" name="categoria" required>
+                            <option value="">Cargando categorías...</option>
+                          </select>
+                          <button type="button" id="addCategoryBtn" class="btn-add-mini" title="Agregar nueva categoría">+</button>
+                        </div>
+                        <div id="categoryManager" class="category-manager">
+                          <!-- Categorías se cargan dinámicamente aquí -->
+                        </div>
+                      </div>
                     </div>
-                  </div>
                   
                   <div class="form-group">
                     <label for="productStock">Stock *</label>
@@ -431,6 +436,7 @@ if (isAdmin) {
       const clearBtn = document.getElementById('clearForm');
       const addCategoryBtn = document.getElementById('addCategoryBtn');
       const productCategorySelect = document.getElementById('productCategory');
+      const categoryManager = document.getElementById('categoryManager');
       const editBtns = document.querySelectorAll('.btn-edit');
       const deleteBtns = document.querySelectorAll('.btn-delete');
       const imageUpload = document.getElementById('imageUpload');
@@ -444,6 +450,7 @@ if (isAdmin) {
           const { data, error } = await supabase.from('categorias').select('*').order('nombre');
           if (error) throw error;
           
+          // Actualizar Select
           if (productCategorySelect) {
             productCategorySelect.innerHTML = '<option value="">Seleccionar categoría...</option>';
             data.forEach(cat => {
@@ -453,9 +460,70 @@ if (isAdmin) {
               productCategorySelect.appendChild(option);
             });
           }
+
+          // Actualizar Lista de Gestión
+          if (categoryManager) {
+            categoryManager.innerHTML = '';
+            data.forEach(cat => {
+              const catItem = document.createElement('div');
+              catItem.className = 'category-item-tag';
+              catItem.dataset.id = cat.id;
+              catItem.innerHTML = `
+                <span>${cat.nombre}</span>
+                <button type="button" class="btn-del-cat" data-id="${cat.id}" data-name="${cat.nombre}">×</button>
+              `;
+              categoryManager.appendChild(catItem);
+            });
+
+            // Re-vincular eventos de borrado
+            categoryManager.querySelectorAll('.btn-del-cat').forEach(btn => {
+              btn.onclick = () => deleteCategory(btn.dataset.id, btn.dataset.name);
+            });
+          }
         } catch (err) {
           console.error("Error fetching categories:", err);
           if (productCategorySelect) productCategorySelect.innerHTML = '<option value="">Error al cargar</option>';
+        }
+      }
+
+      async function deleteCategory(id, name) {
+        if (!confirm(`¿Estás seguro de eliminar la categoría "${name}"?`)) return;
+
+        try {
+          // 1. Verificar si hay productos asociados
+          const { data: products, error: checkError } = await supabase
+            .from('productos')
+            .select('id')
+            .eq('categoria', name)
+            .limit(1);
+
+          if (checkError) throw checkError;
+
+          if (products && products.length > 0) {
+            alert(`No se puede eliminar "${name}" porque tiene productos asociados. Reasigna los productos a otra categoría primero.`);
+            return;
+          }
+
+          // 2. Proceder con el borrado
+          const { error: delError } = await supabase
+            .from('categorias')
+            .delete()
+            .eq('id', id);
+
+          if (delError) throw delError;
+
+          // 3. Feedback y Sync
+          const item = categoryManager.querySelector(`[data-id="${id}"]`);
+          if (item) {
+            gsap.to(item, { scale: 0.8, opacity: 0, duration: 0.2, onComplete: () => fetchCategorias() });
+          } else {
+            fetchCategorias();
+          }
+          
+          console.log(`✅ Categoría "${name}" eliminada`);
+        } catch (err) {
+          console.error("❌ Error al eliminar categoría:", err);
+          alert("Error al eliminar categoría: " + err.message);
         }
       }
 
@@ -745,6 +813,13 @@ if (isAdmin) {
   .featured-cell { text-align: center; font-size: 1.2rem; }
   .featured-star { color: var(--cyan); text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
   .not-featured { color: var(--gris); opacity: 0.5; }
+  .category-field-container { display: flex; flex-direction: column; gap: 0.75rem; }
+  .category-manager { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem; background: var(--negro); border: 1px solid var(--borde); border-radius: 4px; min-height: 42px; }
+  .category-item-tag { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; background: var(--negro-suave); border: 1px solid var(--borde); border-radius: 20px; font-size: 0.8rem; color: var(--blanco); transition: all 0.2s ease; }
+  .category-item-tag:hover { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 255, 255, 0.1); }
+  .btn-del-cat { background: none; border: none; color: var(--rojo); cursor: pointer; padding: 0; font-size: 1.2rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; transition: all 0.2s ease; }
+  .btn-del-cat:hover { background: var(--rojo); color: var(--blanco); transform: scale(1.1); }
+  
   .empty-state { grid-column: 1 / -1; text-align: center; padding: 6rem 2rem; color: var(--gris); font-size: 1.2rem; letter-spacing: 0.1em; text-transform: uppercase; min-height: 300px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--borde); border-radius: 8px; background: var(--negro-suave); }
   
   @media (max-width: 768px) {
