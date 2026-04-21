@@ -53,14 +53,14 @@
     }
 
     addToCart(button) {
-      const productId = button.dataset.id;
+      const productId = String(button.dataset.id);
       const productName = button.dataset.name || 'Producto';
       const productImage = button.dataset.image || 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?q=80&w=200&auto=format&fit=crop';
       const stock = parseInt(button.dataset.stock) || 0;
       const productPrice = parseFloat(button.dataset.price) || 0;
 
-      const itemExistente = this.cart.find(i => i.id === productId);
-      const cantidadActual = itemExistente ? itemExistente.quantity : 0;
+      const itemExistente = this.cart.find(i => String(i.id) === productId);
+      const cantidadActual = itemExistente ? parseInt(itemExistente.quantity) : 0;
 
       if (cantidadActual >= stock && stock > 0) {
         alert(`Stock agotado. Solo hay ${stock} unidad/es disponible/s.`);
@@ -112,8 +112,11 @@
       const itemsContainer = document.getElementById('cartItems');
       const total = document.getElementById('cartTotal');
 
+      // Update badge consistently
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: this.cart } }));
+
       if (badge) {
-        badge.textContent = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        badge.textContent = this.cart.reduce((sum, item) => sum + parseInt(item.quantity), 0);
       }
 
       if (itemsContainer) {
@@ -148,7 +151,7 @@
       }
 
       if (total) {
-        const totalAmount = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const totalAmount = this.cart.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
         total.textContent = `$ ${totalAmount.toLocaleString('es-AR')}`;
       }
     }
@@ -177,10 +180,10 @@
       this.closeCart();
 
       const cartText = this.cart
-        .map(item => `• ${item.name} (x${item.quantity}) - $ ${(item.price * item.quantity).toLocaleString('es-AR')}`)
+        .map(item => `• ${item.name} (x${item.quantity}) - $ ${(parseFloat(item.price) * parseInt(item.quantity)).toLocaleString('es-AR')}`)
         .join('\n');
 
-      const total = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const total = this.cart.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
       const message = `🏴 *NUEVO PEDIDO - MELROSE* 🏴\n--------------------------------\nHola! Me gustaría realizar la compra de los siguientes artículos:\n\n${cartText}\n\n💰 *TOTAL:* $ ${total.toLocaleString('es-AR')}\n--------------------------------\n¿Cómo procedemos con el pago y el envío?`;
 
       window.open(`https://wa.me/5493624645328?text=${encodeURIComponent(message)}`, '_blank');
@@ -287,12 +290,14 @@
     flex: 1;
     overflow-y: auto;
     padding: 2.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   .cart-item {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     animation: slideIn 0.3s ease-out;
@@ -300,8 +305,8 @@
   }
 
   .cart-item-img {
-    width: 70px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
     object-fit: cover;
     border-radius: 4px;
     flex-shrink: 0;

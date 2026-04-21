@@ -79,6 +79,14 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMenu();
   });
+
+  // Escuchar actualización del carrito en el header
+  window.addEventListener('cartUpdated', (e) => {
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+      badge.textContent = e.detail.cart.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0);
+    }
+  });
 </script>
 
 <style>
