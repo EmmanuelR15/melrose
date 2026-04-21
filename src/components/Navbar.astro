@@ -316,16 +316,28 @@
       width: 280px;
       height: 100vh;
       height: 100dvh;
-      background: rgba(10, 10, 10, 0.98);
-      backdrop-filter: blur(12px);
+      background: none; /* Removed to use pseudo-element */
+      backdrop-filter: none; /* Removed to use pseudo-element */
       flex-direction: column;
       gap: 0;
       padding: 6rem 2rem 2rem;
       transform: translateX(100%);
       transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      border-left: 1px solid var(--borde);
-      z-index: 2000; /* Increased to be above navbar (1000) */
+      z-index: 2000;
       align-items: flex-start;
+      border-left: none; /* Moved to pseudo-element */
+      isolation: isolate; /* Create a stacking context for children */
+    }
+
+    .nav-links::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 10, 0.98);
+      backdrop-filter: blur(12px);
+      z-index: -1;
+      border-left: 1px solid var(--borde);
+      pointer-events: none;
     }
 
     .nav-links.active {
