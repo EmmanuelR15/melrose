@@ -94,9 +94,9 @@
     }
 
     updateQuantity(productId, quantity) {
-      const item = this.cart.find(p => p.id === productId);
+      const item = this.cart.find(p => String(p.id) === String(productId));
       if (item) {
-        const newQty = Math.max(1, Math.min(quantity, item.stock));
+        const newQty = Math.max(1, Math.min(parseInt(quantity), item.stock));
         item.quantity = newQty;
         this.save();
         this.updateUI();
@@ -127,10 +127,10 @@
                 <div class="item-info">
                   <h4>${item.name}</h4>
                   <p class="item-price">$ ${item.price.toLocaleString('es-AR')}</p>
-                  <button class="remove-btn" data-id="${item.id}">Retirar</button>
                 </div>
                 <div class="item-controls">
                   <input type="number" value="${item.quantity}" min="1" max="${item.stock || 10}" data-id="${item.id}" class="qty-input">
+                  <button class="remove-btn" data-id="${item.id}">Retirar</button>
                 </div>
               </div>
             `).join('')
@@ -296,17 +296,20 @@
   }
 
   .cart-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
     gap: 1rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
     animation: slideIn 0.3s ease-out;
     align-items: center;
   }
 
   .cart-item-img {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     object-fit: cover;
     border-radius: 4px;
     flex-shrink: 0;
@@ -355,7 +358,9 @@
 
   .item-controls {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
     flex-shrink: 0;
   }
 
@@ -384,7 +389,7 @@
     border: none;
     color: var(--gris);
     padding: 0;
-    margin-top: 0.3rem;
+    margin-top: 0;
     font-size: 0.7rem;
     cursor: pointer;
     transition: all 0.3s ease;
