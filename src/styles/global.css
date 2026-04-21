@@ -19,12 +19,16 @@
   cursor: default;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background: var(--negro);
   color: var(--blanco);
   font-family: "Inter", sans-serif;
   line-height: 1.4;
-  overflow-x: hidden;
   width: 100%;
   padding-top: 70px;
 }

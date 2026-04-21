@@ -158,17 +158,20 @@
 
     toggleCart() {
       const drawer = document.getElementById('cartDrawer');
-      drawer?.classList.toggle('active');
+      const isActive = drawer?.classList.toggle('active');
+      document.body.style.overflow = isActive ? 'hidden' : '';
     }
 
     openCart() {
       const drawer = document.getElementById('cartDrawer');
       drawer?.classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
 
     closeCart() {
       const drawer = document.getElementById('cartDrawer');
       drawer?.classList.remove('active');
+      document.body.style.overflow = '';
     }
 
     checkout() {
@@ -246,8 +249,8 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 380px;
-    height: 100vh;
+    width: min(380px, 100vw);
+    height: 100dvh;
     background: var(--negro);
     border-left: 2px solid var(--cyan);
     transform: translateX(100%);
@@ -255,6 +258,7 @@
     z-index: 999;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .cart-drawer.active {
