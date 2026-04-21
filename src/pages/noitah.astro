@@ -1,170 +1,413 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
 
 // Check if already logged in
 const isAdmin = Astro.cookies.get('admin_token')?.value === 'melrose_admin_2024';
+
+let products = [];
 if (isAdmin) {
-  return Astro.redirect('/admin');
+  const fallbackProducts = [
+    {
+      id: 'fallback-1',
+      nombre: 'URBAN TEE CLASSIC',
+      precio: 45000,
+      imagen_url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=800&fit=crop',
+      categoria: 'REMERAS',
+      stock: 15
+    },
+    {
+      id: 'fallback-2',
+      nombre: 'STREET HOODIE PRO',
+      precio: 78000,
+      imagen_url: 'https://images.unsplash.com/photo-1556821840-3a8f3ea9f747?w=600&h=800&fit=crop',
+      categoria: 'BUZOS',
+      stock: 8
+    }
+  ];
+
+  try {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('productos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      products = error ? [] : data ?? fallbackProducts;
+    } else {
+      products = fallbackProducts;
+    }
+  } catch (err) {
+    products = fallbackProducts;
+  }
 }
 ---
 
-<Layout title="Access Control | MELROSE">
-  <main class="admin-login">
-    <div class="login-container">
-      <div class="login-card">
-        <div class="login-header">
-          <h1>ACCESS CONTROL</h1>
-          <p>Authorized personnel only</p>
+<Layout title={isAdmin ? "Admin Panel | MELROSE" : "Access Control | MELROSE"}>
+  {isAdmin ? (
+    <main class="admin-panel">
+      <div class="container">
+        <div class="admin-header">
+          <h1>PANEL DE ADMINISTRACIÓN</h1>
+          <p>Gestión de productos y inventario</p>
+          <a href="/" class="back-to-site">Volver al sitio</a>
+          <button id="logoutBtn" style="margin-left: 10px; padding: 0.5rem 1.5rem; background: transparent; color: var(--blanco); border: 1px solid var(--borde); border-radius: 4px; cursor: pointer;">Cerrar Sesión</button>
         </div>
 
-        <form id="loginForm" class="login-form">
-          <div class="form-group">
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              required
-              placeholder="Enter credentials"
-              autocomplete="off"
-            >
-          </div>
-          
-          <button type="submit" class="login-btn">
-            AUTHENTICATE
-          </button>
-        </form>
+        <div class="admin-content">
+          <section class="product-management">
+            <h2>Gestión de Productos</h2>
+            
+            <div class="product-form">
+              <h3>Agregar/Editar Producto</h3>
+              <form id="productForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="productId">ID del Producto</label>
+                    <input type="text" id="productId" name="id" placeholder="Auto-generado" readonly>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="productName">Nombre *</label>
+                    <input type="text" id="productName" name="nombre" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="productPrice">Precio (ARS) *</label>
+                    <input type="number" id="productPrice" name="precio" min="0" step="100" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="productCategory">Categoría *</label>
+                    <select id="productCategory" name="categoria" required>
+                      <option value="">Seleccionar...</option>
+                      <option value="REMERAS">REMERAS</option>
+                      <option value="BUZOS">BUZOS</option>
+                      <option value="PANTALONES">PANTALONES</option>
+                      <option value="ACCESORIOS">ACCESORIOS</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="productStock">Stock *</label>
+                    <input type="number" id="productStock" name="stock" min="0" required>
+                  </div>
+                  
+                  <div class="form-group checkbox-group">
+                    <label for="productFeatured" class="checkbox-label">
+                      <input type="checkbox" id="productFeatured" name="destacado" value="true">
+                      <span class="checkbox-custom"></span>
+                      Marcar como Destacado
+                    </label>
+                  </div>
+                  
+                  <div class="form-group full-width">
+                    <label for="productImage">URL de Imagen</label>
+                    <input type="url" id="productImage" name="imagen_url" placeholder="https://...">
+                  </div>
+                  
+                  <div class="form-group full-width">
+                    <label for="productDescription">Descripción</label>
+                    <textarea id="productDescription" name="descripcion" rows="3"></textarea>
+                  </div>
+                </div>
+                
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary">Guardar Producto</button>
+                  <button type="button" id="clearForm" class="btn-secondary">Limpiar Formulario</button>
+                </div>
+              </form>
+            </div>
 
-        <div class="login-footer">
-          <a href="/" class="back-link">Return to site</a>
+            <div class="products-list">
+              <h3>Productos Existentes</h3>
+              {products.length > 0 ? (
+                <div class="products-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nombre</th>
+                      <th>Precio</th>
+                      <th>Categoría</th>
+                      <th>Stock</th>
+                      <th>Destacado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr data-product-id={product.id}>
+                        <td>{product.id}</td>
+                        <td>{product.nombre}</td>
+                        <td>${product.precio.toLocaleString('es-AR')}</td>
+                        <td>{product.categoria}</td>
+                        <td>{product.stock}</td>
+                        <td class="featured-cell">
+                          {product.destacado ? '<span class="featured-star">⭐</span>' : '<span class="not-featured">-</span>'}
+                        </td>
+                        <td>
+                          <button class="btn-edit" data-product-id={product.id}>Editar</button>
+                          <button class="btn-delete" data-product-id={product.id}>Eliminar</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              ) : (
+                <div class="empty-state">
+                  <p>No hay productos cargados aún</p>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section class="admin-stats">
+            <h2>Estadísticas Rápidas</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-content">
+                  <h3>Total Productos</h3>
+                  <p class="stat-number">{products.length}</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                  <h3>Valor del Inventario</h3>
+                  <p class="stat-number">
+                    ${products.reduce((sum, p) => sum + (p.precio * (p.stock || 0)), 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}
+                  </p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-content">
+                  <h3>Producto Más Caro</h3>
+                  <p class="stat-number">
+                    ${products.length > 0 
+                      ? Math.max(...products.map(p => p.precio)).toLocaleString('es-AR')
+                      : '0'
+                    }
+                  </p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                  <h3>Precio Promedio</h3>
+                  <p class="stat-number">
+                    ${products.length > 0 
+                      ? Math.round(products.reduce((sum, p) => sum + p.precio, 0) / products.length).toLocaleString('es-AR')
+                      : '0'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+  ) : (
+    <main class="admin-login">
+      <div class="login-container">
+        <div class="login-card">
+          <div class="login-header">
+            <h1>ACCESS CONTROL</h1>
+            <p>Authorized personnel only</p>
+          </div>
+
+          <form id="loginForm" class="login-form">
+            <div class="form-group">
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                required
+                placeholder="Enter credentials"
+                autocomplete="off"
+              >
+            </div>
+            
+            <button type="submit" class="login-btn">
+              AUTHENTICATE
+            </button>
+          </form>
+
+          <div class="login-footer">
+            <a href="/" class="back-link">Return to site</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  )}
 </Layout>
 
 <script>
-  // SHA-256 hashing function
+  // Shared Admin Logic (Login & Panel)
+  
+  // Anti-intrusion for login mode
+  if (!document.querySelector('.admin-panel')) {
+    (function() {
+      console.clear();
+      console.log('%c🚫 Unauthorized access prohibited', 'color: red; font-size: 20px; font-weight: bold;');
+      let devtools = { open: false, orientation: null };
+      const threshold = 160;
+      setInterval(() => {
+        if (window.outerHeight - window.innerHeight > threshold || window.outerWidth - window.innerWidth > threshold) {
+          if (!devtools.open) {
+            devtools.open = true;
+            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #0a0a0a; color: #f5f5f5; font-family: monospace; font-size: 24px;">🚫 Access Denied</div>';
+            window.location.href = '/';
+          }
+        } else {
+          devtools.open = false;
+        }
+      }, 500);
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
+          e.preventDefault(); return false;
+        }
+      });
+    })();
+  }
+
+  // SHA-256
   async function sha256(message) {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
-
-  // Anti-intrusion: Clear console and block devtools
-  (function() {
-    // Clear console
-    console.clear();
-    console.log('%c🚫 Unauthorized access prohibited', 'color: red; font-size: 20px; font-weight: bold;');
-    
-    // Block devtools
-    let devtools = {
-      open: false,
-      orientation: null
-    };
-    
-    const threshold = 160;
-    
-    setInterval(() => {
-      if (window.outerHeight - window.innerHeight > threshold || 
-          window.outerWidth - window.innerWidth > threshold) {
-        if (!devtools.open) {
-          devtools.open = true;
-          document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #0a0a0a; color: #f5f5f5; font-family: monospace; font-size: 24px;">🚫 Access Denied</div>';
-          window.location.href = '/';
-        }
-        devtools.orientation = window.outerHeight - window.innerHeight > threshold ? 'vertical' : 'horizontal';
-      } else {
-        if (devtools.open) {
-          devtools.open = false;
-          devtools.orientation = null;
-        }
-      }
-    }, 500);
-    
-    // Disable right click
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    
-    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-    document.addEventListener('keydown', e => {
-      if (e.keyCode === 123 || 
-          (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
-          (e.ctrlKey && e.keyCode === 85)) {
-        e.preventDefault();
-        return false;
-      }
-    });
-  })();
 
   document.addEventListener('DOMContentLoaded', async () => {
     const loginForm = document.getElementById('loginForm');
     
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const password = e.target.password.value;
-      
-      // Hash the password for comparison
-      const hashedPassword = await sha256('melrose_admin_2024');
-      const inputHash = await sha256(password);
-      
-      // Compare hashes
-      if (inputHash === hashedPassword) {
-        // Set session token in sessionStorage
-        sessionStorage.setItem('admin_session_token', 'melrose_admin_2024');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = e.target.password.value;
+        const hashedPassword = await sha256('melrose_admin_2024');
+        const inputHash = await sha256(password);
         
-        // Set admin token cookie
-        document.cookie = 'admin_token=melrose_admin_2024; path=/; max-age=86400; SameSite=Strict; Secure';
-        
-        // Redirect to admin panel
-        window.location.href = '/admin';
-      } else {
-        // Show error with subtle animation
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'login-error';
-        errorDiv.textContent = 'Authentication failed';
-        errorDiv.style.cssText = `
-          color: var(--rojo);
-          margin-top: 1rem;
-          text-align: center;
-          font-weight: 600;
-          opacity: 0;
-          transform: translateY(-10px);
-          transition: all 0.3s ease;
-        `;
-        
-        // Remove existing error
-        const existingError = loginForm.querySelector('.login-error');
-        if (existingError) {
-          existingError.remove();
+        if (inputHash === hashedPassword) {
+          sessionStorage.setItem('admin_session_token', 'melrose_admin_2024');
+          document.cookie = 'admin_token=melrose_admin_2024; path=/; max-age=86400; SameSite=Strict; Secure';
+          window.location.reload(); 
+        } else {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'login-error';
+          errorDiv.textContent = 'Authentication failed';
+          errorDiv.style.cssText = 'color: var(--rojo); margin-top: 1rem; text-align: center; font-weight: 600; opacity: 0; transform: translateY(-10px); transition: all 0.3s ease;';
+          const existingError = loginForm.querySelector('.login-error');
+          if (existingError) existingError.remove();
+          loginForm.appendChild(errorDiv);
+          setTimeout(() => { errorDiv.style.opacity = '1'; errorDiv.style.transform = 'translateY(0)'; }, 100);
+          e.target.password.value = '';
+          setTimeout(() => {
+            if (errorDiv.parentNode) {
+              errorDiv.style.opacity = '0';
+              errorDiv.style.transform = 'translateY(-10px)';
+              setTimeout(() => errorDiv.remove(), 300);
+            }
+          }, 3000);
         }
-        
-        loginForm.appendChild(errorDiv);
-        
-        // Animate error in
-        setTimeout(() => {
-          errorDiv.style.opacity = '1';
-          errorDiv.style.transform = 'translateY(0)';
-        }, 100);
-        
-        // Clear password field
-        e.target.password.value = '';
-        
-        // Remove error after 3 seconds
-        setTimeout(() => {
-          if (errorDiv.parentNode) {
-            errorDiv.style.opacity = '0';
-            errorDiv.style.transform = 'translateY(-10px)';
-            setTimeout(() => errorDiv.remove(), 300);
-          }
-        }, 3000);
+      });
+    }
+
+    // Panel logic
+    if (document.querySelector('.admin-panel')) {
+      const sessionToken = sessionStorage.getItem('admin_session_token');
+      if (!sessionToken || sessionToken !== 'melrose_admin_2024') {
+        window.location.href = '/';
+        return;
       }
-    });
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          sessionStorage.removeItem('admin_session_token');
+          document.cookie = 'admin_token=; path=/; max-age=0; SameSite=Strict; Secure';
+          window.location.reload();
+        });
+      }
+
+      const form = document.getElementById('productForm');
+      const clearBtn = document.getElementById('clearForm');
+      const editBtns = document.querySelectorAll('.btn-edit');
+      const deleteBtns = document.querySelectorAll('.btn-delete');
+      let currentEditId = null;
+      
+      function loadProducts() { return localStorage.getItem('admin_products') ? JSON.parse(localStorage.getItem('admin_products')) : []; }
+      function saveProducts(products) { localStorage.setItem('admin_products', JSON.stringify(products)); }
+      
+      function clearForm() { form.reset(); document.getElementById('productId').value = ''; currentEditId = null; }
+      
+      function editProduct(productId) {
+        const product = loadProducts().find(p => p.id === productId);
+        if (product) {
+          document.getElementById('productId').value = product.id;
+          document.getElementById('productName').value = product.nombre;
+          document.getElementById('productPrice').value = product.precio;
+          document.getElementById('productCategory').value = product.categoria;
+          document.getElementById('productStock').value = product.stock;
+          document.getElementById('productImage').value = product.imagen_url || '';
+          document.getElementById('productDescription').value = product.descripcion || '';
+          document.getElementById('productFeatured').checked = product.destacado || false;
+          currentEditId = productId;
+          form.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+      
+      function deleteProduct(productId) {
+        if (confirm('¿Estás seguro de eliminar este producto?')) {
+          saveProducts(loadProducts().filter(p => p.id !== productId));
+          const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+          if (row) row.remove();
+        }
+      }
+      
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formData = new FormData(form);
+          const product = {
+            id: currentEditId || 'product_' + Date.now(),
+            nombre: formData.get('nombre'),
+            precio: parseFloat(formData.get('precio')),
+            categoria: formData.get('categoria'),
+            stock: parseInt(formData.get('stock')),
+            imagen_url: formData.get('imagen_url') || '',
+            descripcion: formData.get('descripcion') || '',
+            destacado: formData.get('destacado') === 'true',
+            updated_at: new Date().toISOString()
+          };
+          const products = loadProducts();
+          if (currentEditId) {
+            const index = products.findIndex(p => p.id === currentEditId);
+            if (index > -1) products[index] = product;
+          } else {
+            products.push(product);
+          }
+          saveProducts(products);
+          clearForm();
+          setTimeout(() => { window.location.reload(); }, 1000);
+        });
+      }
+      
+      if (clearBtn) clearBtn.addEventListener('click', clearForm);
+      editBtns.forEach(btn => btn.addEventListener('click', () => editProduct(btn.dataset.productId)));
+      deleteBtns.forEach(btn => btn.addEventListener('click', () => deleteProduct(btn.dataset.productId)));
+    }
   });
 </script>
 
 <style>
+  /* Login CSS */
   .admin-login {
     min-height: 100vh;
     background: var(--negro);
@@ -175,165 +418,82 @@ if (isAdmin) {
     position: relative;
     overflow: hidden;
   }
-
   .admin-login::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 20% 50%, rgba(192, 57, 43, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 1;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(192, 57, 43, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 1;
   }
+  .login-container { width: 100%; max-width: 400px; position: relative; z-index: 2; }
+  .login-card { background: var(--negro-suave); border: 1px solid var(--borde); border-radius: 8px; padding: 3rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  .login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--rojo), transparent); opacity: 0.3; }
+  .login-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.1em; color: var(--blanco); margin-bottom: 0.5rem; text-transform: uppercase; }
+  .login-header p { color: var(--gris); margin-bottom: 2rem; font-size: 0.9rem; opacity: 0.8; }
+  .login-form { margin-bottom: 2rem; }
+  .form-group { margin-bottom: 1.5rem; position: relative; display: flex; flex-direction: column; }
+  .form-group input { width: 100%; padding: 1rem; background: var(--negro); border: 1px solid var(--borde); border-radius: 6px; color: var(--blanco); font-family: 'Courier New', monospace; font-size: 1rem; transition: all 0.3s ease; position: relative; }
+  .form-group input:focus { outline: none; border-color: var(--rojo); box-shadow: 0 0 10px rgba(192, 57, 43, 0.3); }
+  .login-btn { width: 100%; padding: 1rem; background: transparent; color: var(--blanco); border: 1px solid var(--borde); border-radius: 6px; font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; position: relative; overflow: hidden; }
+  .login-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(192, 57, 43, 0.2), transparent); transition: left 0.6s ease; }
+  .login-btn:hover { border-color: var(--rojo); color: var(--rojo); box-shadow: 0 0 20px rgba(192, 57, 43, 0.2); }
+  .login-btn:hover::before { left: 100%; }
+  .login-footer { border-top: 1px solid var(--borde); padding-top: 1.5rem; }
+  .back-link { color: var(--gris); text-decoration: none; font-size: 0.9rem; transition: color 0.3s ease; opacity: 0.7; }
+  .back-link:hover { color: var(--rojo); opacity: 1; }
 
-  .login-container {
-    width: 100%;
-    max-width: 400px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .login-card {
-    background: var(--negro-suave);
-    border: 1px solid var(--borde);
-    border-radius: 8px;
-    padding: 3rem 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .login-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--rojo), transparent);
-    opacity: 0.3;
-  }
-
-  .login-header h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    letter-spacing: 0.1em;
-    color: var(--blanco);
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-  }
-
-  .login-header p {
-    color: var(--gris);
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
-    opacity: 0.8;
-  }
-
-  .login-form {
-    margin-bottom: 2rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-    position: relative;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 1rem;
-    background: var(--negro);
-    border: 1px solid var(--borde);
-    border-radius: 6px;
-    color: var(--blanco);
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-
-  .form-group input:focus {
-    outline: none;
-    border-color: var(--rojo);
-    box-shadow: 0 0 10px rgba(192, 57, 43, 0.3);
-  }
-
-  .form-group input::placeholder {
-    color: var(--gris);
-    opacity: 0.5;
-  }
-
-  .login-btn {
-    width: 100%;
-    padding: 1rem;
-    background: transparent;
-    color: var(--blanco);
-    border: 1px solid var(--borde);
-    border-radius: 6px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.2rem;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .login-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(192, 57, 43, 0.2), transparent);
-    transition: left 0.6s ease;
-  }
-
-  .login-btn:hover {
-    border-color: var(--rojo);
-    color: var(--rojo);
-    box-shadow: 0 0 20px rgba(192, 57, 43, 0.2);
-  }
-
-  .login-btn:hover::before {
-    left: 100%;
-  }
-
-  .login-btn:active {
-    transform: scale(0.98);
-  }
-
-  .login-footer {
-    border-top: 1px solid var(--borde);
-    padding-top: 1.5rem;
-  }
-
-  .back-link {
-    color: var(--gris);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.3s ease;
-    opacity: 0.7;
-  }
-
-  .back-link:hover {
-    color: var(--rojo);
-    opacity: 1;
-  }
-
-  @media (max-width: 480px) {
-    .login-card {
-      padding: 2rem 1.5rem;
-    }
-    
-    .login-header h1 {
-      font-size: 1.8rem;
-    }
+  /* Admin Panel CSS */
+  .admin-panel { min-height: 100vh; background: var(--negro); color: var(--blanco); padding: 2rem 0; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+  .admin-header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--borde); }
+  .admin-header h1 { font-size: clamp(2rem, 6vw, 3rem); font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; margin-bottom: 0.5rem; color: var(--blanco); }
+  .admin-header p { color: var(--gris); margin-bottom: 1.5rem; }
+  .back-to-site { display: inline-block; padding: 0.5rem 1.5rem; background: var(--rojo); color: var(--blanco); text-decoration: none; border-radius: 4px; font-weight: 600; transition: background 0.3s ease; }
+  .back-to-site:hover { background: var(--rojo-oscuro); }
+  
+  .admin-content { display: grid; gap: 3rem; }
+  .product-management h2, .admin-stats h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.05em; margin-bottom: 2rem; color: var(--blanco); }
+  .product-form { background: var(--negro-suave); border: 1px solid var(--borde); border-radius: 8px; padding: 2rem; margin-bottom: 3rem; }
+  .product-form h3 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--blanco); }
+  .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+  .form-group.full-width { grid-column: 1 / -1; }
+  .form-group label { margin-bottom: 0.5rem; font-weight: 600; color: var(--gris); }
+  .form-group select, .form-group textarea { padding: 0.75rem; background: var(--negro); border: 1px solid var(--borde); color: var(--blanco); border-radius: 4px; font-family: inherit; }
+  .form-actions { display: flex; gap: 1rem; }
+  .btn-primary, .btn-secondary { padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+  .btn-primary { background: var(--rojo); color: var(--blanco); }
+  .btn-secondary { background: transparent; color: var(--gris); border: 1px solid var(--borde); }
+  .products-table { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: var(--negro-suave); border: 1px solid var(--borde); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--borde); }
+  th { background: var(--negro); font-weight: 600; color: var(--blanco); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; }
+  td { color: var(--gris); }
+  .btn-edit, .btn-delete { padding: 0.25rem 0.75rem; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; margin-right: 0.5rem; transition: all 0.3s ease; }
+  .btn-edit { background: var(--cyan); color: var(--negro); }
+  .btn-delete { background: var(--rojo); color: var(--blanco); }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+  .stat-card { background: var(--negro-suave); border: 1px solid var(--borde); border-radius: 8px; padding: 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+  .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .stat-content { display: flex; flex-direction: column; align-items: center; }
+  .stat-card h3 { font-size: 0.8rem; color: var(--gris); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-number { font-size: 1.8rem; font-family: 'Bebas Neue', sans-serif; color: var(--cyan); font-weight: 900; line-height: 1; }
+  .checkbox-group { display: flex; align-items: center; }
+  .checkbox-label { display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: var(--blanco); gap: 0.5rem; }
+  .checkbox-label input[type="checkbox"] { display: none; }
+  .checkbox-custom { width: 20px; height: 20px; border: 2px solid var(--borde); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; position: relative; }
+  .checkbox-custom::before { content: '✓'; color: var(--blanco); font-size: 14px; font-weight: bold; opacity: 0; transform: scale(0); transition: all 0.3s ease; }
+  .checkbox-label input[type="checkbox"]:checked + .checkbox-custom { background: var(--rojo); border-color: var(--rojo); }
+  .checkbox-label input[type="checkbox"]:checked + .checkbox-custom::before { opacity: 1; transform: scale(1); }
+  .featured-cell { text-align: center; font-size: 1.2rem; }
+  .featured-star { color: var(--cyan); text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+  .not-featured { color: var(--gris); opacity: 0.5; }
+  .empty-state { grid-column: 1 / -1; text-align: center; padding: 6rem 2rem; color: var(--gris); font-size: 1.2rem; letter-spacing: 0.1em; text-transform: uppercase; min-height: 300px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--borde); border-radius: 8px; background: var(--negro-suave); }
+  
+  @media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-actions { flex-direction: column; }
+    .products-table { font-size: 0.8rem; }
+    th, td { padding: 0.5rem; }
   }
 </style>

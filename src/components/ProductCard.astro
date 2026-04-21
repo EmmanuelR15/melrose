@@ -43,7 +43,9 @@ const formatter = new Intl.NumberFormat('es-AR', {
       <p class="product-category">{product.categoria}</p>
     </div>
     <p class="product-price">{formatter.format(product.precio)}</p>
-    <button class="btn-agregar" data-id={product.id} data-price={product.precio} data-name={product.nombre} data-stock={product.stock} data-image={product.imagen_url}>AGREGAR</button>
+    <button class={`btn-agregar ${product.stock === 1 ? 'ultima-unidad' : ''}`} data-id={product.id} data-price={product.precio} data-name={product.nombre} data-stock={product.stock} data-image={product.imagen_url}>
+      {product.stock === 1 ? 'ÚLTIMA UNIDAD' : 'AGREGAR'}
+    </button>
   </div>
 </article>
 
@@ -273,6 +275,11 @@ const formatter = new Intl.NumberFormat('es-AR', {
   .btn-agregar:active {
     transform: translateY(0) scale(0.98);
     box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+  }
+
+  .btn-agregar.ultima-unidad {
+    background: rgba(192, 57, 43, 0.85); /* Opacidad reducida visualmente */
+    color: var(--blanco);
   }
 
   /* Tablet responsive */

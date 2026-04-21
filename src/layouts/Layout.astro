@@ -103,6 +103,41 @@ const { title, description = "Premium Streetwear - Moda Urbana de Alta Gama" } =
 					cursor: none !important;
 				}
 			}
+
+			/* Melrose Toast */
+			.melrose-toast {
+				position: fixed;
+				top: 1.5rem;
+				right: 1.5rem;
+				background: var(--rojo);
+				color: var(--blanco);
+				padding: 0.8rem 1.2rem;
+				font-size: 0.85rem;
+				font-weight: 600;
+				letter-spacing: 0.05em;
+				border-radius: 4px;
+				box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(192, 57, 43, 0.4);
+				z-index: 9999;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				animation: slideInToast 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+				pointer-events: none;
+			}
+
+			.melrose-toast.fade-out {
+				animation: fadeOutToast 0.4s ease forwards;
+			}
+
+			@keyframes slideInToast {
+				from { transform: translateX(100%); opacity: 0; }
+				to { transform: translateX(0); opacity: 1; }
+			}
+
+			@keyframes fadeOutToast {
+				from { transform: translateX(0); opacity: 1; }
+				to { transform: translateX(20px); opacity: 0; }
+			}
 		</style>
 
 		<script>

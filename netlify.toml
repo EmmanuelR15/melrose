@@ -7,11 +7,6 @@
 
 # Redirects for SPA behavior
 [[redirects]]
-  from = "/admin/*"
-  to = "/admin/index.html"
-  status = 200
-
-[[redirects]]
   from = "/noitah/*"
   to = "/noitah/index.html"
   status = 200
