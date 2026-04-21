@@ -62,7 +62,7 @@
       const itemExistente = this.cart.find(i => String(i.id) === productId);
       const cantidadActual = itemExistente ? parseInt(itemExistente.quantity) : 0;
 
-      if (cantidadActual >= stock && stock > 0) {
+      if (cantidadActual >= stock) {
         this.showToast(`Stock agotado. Solo hay ${stock} unidad/es disponible/s.`);
         return;
       }
@@ -88,7 +88,7 @@
     }
 
     removeFromCart(productId) {
-      this.cart = this.cart.filter(p => p.id !== productId);
+      this.cart = this.cart.filter(p => String(p.id) !== String(productId));
       this.save();
       this.updateUI();
     }
@@ -320,13 +320,17 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 6px;
     animation: slideIn 0.3s ease-out;
+    max-height: 100px;
   }
 
   .cart-item-img {
-    width: 70px;
-    height: 70px;
+    width: 70px !important;
+    height: 70px !important;
+    min-width: 70px;
+    aspect-ratio: 1/1;
     object-fit: cover;
     border-radius: 4px;
+    overflow: hidden;
     flex-shrink: 0;
   }
 

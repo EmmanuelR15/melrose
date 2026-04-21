@@ -20,6 +20,7 @@ export class WishlistManager {
     const productPrice = parseFloat(button.dataset.price) || 0;
     const productImage = button.dataset.image || '';
     const productCategory = button.dataset.category || '';
+    const productStock = parseInt(button.dataset.stock) || 0;
 
     const itemExistente = this.wishlist.find(i => i.id === productId);
 
@@ -35,6 +36,7 @@ export class WishlistManager {
         price: productPrice,
         image: productImage,
         category: productCategory,
+        stock: productStock,
         addedAt: new Date().toISOString()
       };
       this.wishlist.push(item);
@@ -84,7 +86,9 @@ export class WishlistManager {
                 <button class="btn-primary add-to-cart" 
                         data-id="${item.id}" 
                         data-name="${item.name}" 
-                        data-price="${item.price}">
+                        data-price="${item.price}"
+                        data-stock="${item.stock || 0}"
+                        data-image="${item.image}">
                   AGREGAR
                 </button>
                 <button class="remove-btn" data-id="${item.id}">
