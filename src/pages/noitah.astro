@@ -249,7 +249,8 @@ if (isAdmin) {
 <script>
   // Shared Admin Logic (Login & Panel)
   
-  // Anti-intrusion for login mode
+  // Anti-intrusion for login mode (REMOVED TO PREVENT ACCIDENTAL REDIRECTS)
+  /*
   if (!document.querySelector('.admin-panel')) {
     (function() {
       console.clear();
@@ -275,6 +276,7 @@ if (isAdmin) {
       });
     })();
   }
+  */
 
   // SHA-256
   async function sha256(message) {
@@ -285,6 +287,10 @@ if (isAdmin) {
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🔍 [DEBUG] Script de administración cargado');
+    console.log('🍪 [DEBUG] Cookie actual:', document.cookie);
+    console.log('📂 [DEBUG] SessionStorage token:', sessionStorage.getItem('admin_session_token'));
+
     const loginForm = document.getElementById('loginForm');
     
     if (loginForm) {
@@ -295,8 +301,10 @@ if (isAdmin) {
         const inputHash = await sha256(password);
         
         if (inputHash === hashedPassword) {
+          console.log('✅ [DEBUG] Password correcto. Seteando sesión...');
           sessionStorage.setItem('admin_session_token', 'melrose_admin_2024');
-          document.cookie = 'admin_token=melrose_admin_2024; path=/; max-age=86400; SameSite=Strict; Secure';
+          document.cookie = 'admin_token=melrose_admin_2024; path=/; max-age=86400; SameSite=Lax';
+          console.log('🔄 [DEBUG] Recargando página...');
           window.location.reload(); 
         } else {
           const errorDiv = document.createElement('div');
@@ -323,7 +331,10 @@ if (isAdmin) {
     if (document.querySelector('.admin-panel')) {
       const sessionToken = sessionStorage.getItem('admin_session_token');
       if (!sessionToken || sessionToken !== 'melrose_admin_2024') {
-        window.location.href = '/';
+        console.error('❌ [DEBUG] Fallo de validación de sesión, pero evito redirigir para debugear.');
+        console.log('   Expected: melrose_admin_2024');
+        console.log('   Found:', sessionToken);
+        // window.location.href = '/';
         return;
       }
 
@@ -331,7 +342,7 @@ if (isAdmin) {
       if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
           sessionStorage.removeItem('admin_session_token');
-          document.cookie = 'admin_token=; path=/; max-age=0; SameSite=Strict; Secure';
+          document.cookie = 'admin_token=; path=/; max-age=0; SameSite=Lax';
           window.location.reload();
         });
       }
