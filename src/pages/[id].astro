@@ -201,8 +201,8 @@ if (product?.image_back && !productImages.includes(product.image_back)) {
                 data-name={product.nombre}
                 data-price={product.precio}
                 data-stock={product.stock}
+                data-image={productImages[0]}
                 disabled
-                onclick="addToCartFromDetail(this)"
               >
                 AGREGAR AL CARRITO
               </button>
@@ -307,33 +307,36 @@ if (product?.image_back && !productImages.includes(product.image_back)) {
     }
   }
 
-  // Agregar al carrito desde detalle
-  function addToCartFromDetail(button) {
-    const sizeSelect = document.getElementById('sizeSelect');
-    const quantityInput = document.getElementById('quantityInput');
-    
-    if (!sizeSelect.value) {
-      alert('Por favor selecciona un talle');
-      return;
-    }
-
-    // Actualizar data attributes con talle y cantidad
-    button.dataset.size = sizeSelect.value;
-    button.dataset.quantity = quantityInput.value;
-
-    // Disparar evento existente de addToCart
-    const cartEvent = new CustomEvent('addToCart', {
-      detail: {
-        id: button.dataset.id,
-        name: button.dataset.name,
-        price: parseFloat(button.dataset.price),
-        stock: parseInt(button.dataset.stock),
-        size: button.dataset.size,
-        quantity: parseInt(button.dataset.quantity)
+  // Lógica para agregar al carrito con validación de talle
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', () => {
+      const quantityInput = document.getElementById('quantityInput');
+      
+      if (!sizeSelect.value) {
+        alert('Por favor selecciona un talle');
+        return;
       }
+
+      // Preparar datos para el carrito
+      const cartData = {
+        id: addToCartBtn.dataset.id,
+        name: addToCartBtn.dataset.name,
+        price: parseFloat(addToCartBtn.dataset.price),
+        stock: parseInt(addToCartBtn.dataset.stock),
+        image: addToCartBtn.dataset.image,
+        size: sizeSelect.value,
+        quantity: parseInt(quantityInput?.value || "1")
+      };
+
+      console.log('📦 Melrose Admin: Agregando al carrito:', cartData);
+
+      // Disparar evento personalizado para CartManager
+      const cartEvent = new CustomEvent('addToCart', {
+        detail: cartData
+      });
+      
+      document.dispatchEvent(cartEvent);
     });
-    
-    document.dispatchEvent(cartEvent);
   }
 
   // Compra directa por WhatsApp

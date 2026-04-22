@@ -121,6 +121,13 @@
     updateQuantity(cartKey, quantity) {
       const item = this.cart.find(p => (p.cartKey || `${p.id}-${p.size || 'Único'}`) === String(cartKey));
       if (item) {
+        if (quantity < 1) {
+          if (confirm(`¿Deseas eliminar "${item.name}" (${item.size}) del carrito?`)) {
+            this.removeFromCart(cartKey);
+          }
+          return;
+        }
+
         const newQty = Math.max(1, Math.min(parseInt(quantity), item.stock));
         item.quantity = newQty;
         this.save();
@@ -159,7 +166,7 @@
                 <div class="item-controls">
                   <div class="qty-selector">
                     <button class="qty-btn minus" data-key="${currentKey}">-</button>
-                    <span class="qty-value">${item.quantity}</span>
+                    <span class="qty-value" id="qty-${currentKey}">${item.quantity}</span>
                     <button class="qty-btn plus" data-key="${currentKey}">+</button>
                   </div>
                   <button class="remove-btn" data-key="${currentKey}">Retirar</button>
@@ -168,26 +175,24 @@
             `}).join('')
           : '<p class="empty-cart">Tu carrito está vacío</p>';
 
-        // Add event listeners to quantity buttons and remove buttons
-        itemsContainer.querySelectorAll('.plus').forEach(btn => {
-          btn.onclick = () => {
-            const item = this.cart.find(p => (p.cartKey || `${p.id}-${p.size || 'Único'}`) === btn.dataset.key);
-            if (item) this.updateQuantity(btn.dataset.key, item.quantity + 1);
-          };
-        });
+        // Vincular eventos (usando event delegation o listeners directos)
+        itemsContainer.onclick = (e) => {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          
+          const key = btn.dataset.key;
+          if (!key) return;
 
-        itemsContainer.querySelectorAll('.minus').forEach(btn => {
-          btn.onclick = () => {
-            const item = this.cart.find(p => (p.cartKey || `${p.id}-${p.size || 'Único'}`) === btn.dataset.key);
-            if (item) this.updateQuantity(btn.dataset.key, item.quantity - 1);
-          };
-        });
-
-        itemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            this.removeFromCart(btn.dataset.key);
-          });
-        });
+          if (btn.classList.contains('plus')) {
+            const item = this.cart.find(p => (p.cartKey || `${p.id}-${p.size || 'Único'}`) === key);
+            if (item) this.updateQuantity(key, item.quantity + 1);
+          } else if (btn.classList.contains('minus')) {
+            const item = this.cart.find(p => (p.cartKey || `${p.id}-${p.size || 'Único'}`) === key);
+            if (item) this.updateQuantity(key, item.quantity - 1);
+          } else if (btn.classList.contains('remove-btn')) {
+            this.removeFromCart(key);
+          }
+        };
       }
 
       if (total) {
