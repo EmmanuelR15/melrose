@@ -40,15 +40,13 @@
       if (cartOverlay) cartOverlay.onclick = () => this.closeCart();
       if (checkoutBtn) checkoutBtn.onclick = () => this.checkout();
 
-      // Add to cart buttons (global click listener)
+      // Add to cart buttons (global click listener for cards)
       if (!window.cartListenerAdded) {
         document.addEventListener('click', (e) => {
-          const btn = e.target.closest('.btn-agregar') || e.target.closest('.add-to-cart') || e.target.closest('.add-to-cart-btn');
+          // Excluir el botón de detalle que ya tiene su propia lógica de evento
+          const btn = e.target.closest('.btn-agregar') || e.target.closest('.add-to-cart');
           if (btn) {
-            // Only handle buttons that DON'T have a custom handler (like the one in [id].astro which dispatches an event)
-            if (!btn.hasAttribute('onclick')) {
-              this.addToCart(btn);
-            }
+            this.addToCart(btn);
           }
         });
 
@@ -160,7 +158,7 @@
                 <img src="${item.image || 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=200'}" alt="${item.name}" class="cart-item-img" />
                 <div class="cart-item-details">
                   <h4>${item.name}</h4>
-                  <p class="item-size">TALLE: ${item.size || 'ÚNICO'}</p>
+                  <p class="item-size">TALLE: ${item.size && item.size !== 'N/A' ? item.size : 'Único'}</p>
                   <p class="item-price">$ ${item.price.toLocaleString('es-AR')}</p>
                 </div>
                 <div class="item-controls">
