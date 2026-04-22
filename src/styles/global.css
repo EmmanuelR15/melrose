@@ -8,8 +8,6 @@
   --blanco: #f5f5f5;
   --gris: #888888;
   --borde: #222222;
-  --magenta: #ff00ff;
-  --cyan: #00ffff;
 }
 
 * {
@@ -19,16 +17,12 @@
   cursor: default;
 }
 
-html, body {
-  overflow-x: hidden;
-  max-width: 100%;
-}
-
 body {
   background: var(--negro);
   color: var(--blanco);
   font-family: "Inter", sans-serif;
   line-height: 1.4;
+  overflow-x: hidden;
   width: 100%;
   padding-top: 70px;
 }
@@ -107,8 +101,6 @@ h3 {
   }
 }
 
-/* Product card transform handled in component scope */
-
 /* Product Grid */
 .products-grid {
   display: grid;
@@ -150,7 +142,65 @@ h3 {
   color: var(--rojo);
 }
 
-/* Lookbook styles moved to Lookbook.astro component */
+/* Lookbook */
+.lookbook-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin: 4rem 0;
+}
+
+.lookbook-main {
+  position: relative;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+}
+
+.lookbook-side {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 2rem;
+}
+
+.lookbook-item {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.lookbook-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.lookbook-item:hover img {
+  transform: scale(1.05);
+}
+
+.lookbook-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lookbook-item:hover .lookbook-overlay {
+  opacity: 1;
+}
+
+.lookbook-text {
+  color: var(--blanco);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
 
 /* About Section */
 .about-grid {
@@ -198,4 +248,39 @@ h3 {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+
+  .lookbook-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .lookbook-side {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+  }
+}
+
+/* Custom Scrollbar Styles */
+/* WebKit Browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rojo);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #333333 transparent;
 }
